@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://khotipuron.com"),
   title: "ক্ষতিপূরণ",
   description:
-    "একজন মানুষ হাঁটছেন। তারপর একটি মৃত্যু। তারপর খবরে ক্ষতিপূরণের যে টাকার কথা আছে।",
+    "এক পা, আরেক পা। তারপর শেষ পা। বাকি রইলো শুধু খবরে ঘোষিত সেই ক্ষতিপূরণ, যাকে টাকায় মাপা হয়।",
 };
 
 export default function RootLayout({
