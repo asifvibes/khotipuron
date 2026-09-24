@@ -6,7 +6,7 @@ const FACEBOOK = "https://www.facebook.com/khotipuronUpdate/";
 
 const BN = {
   intro:
-    "এই ক্ষতিপূরণের টাকার এমাউন্টের তথ্য বিভিন্ন নিউজ পোর্টাল থেকে নেয়া হয়েছে। নিজের লিংক ঘটনার বিস্তারিত ইনফোর সাথেই দেয়া আছে।",
+    "এই ক্ষতিপূরণের টাকার এমাউন্টের তথ্য বিভিন্ন নিউজ পোর্টাল থেকে নেয়া হয়েছে। নিউজের লিংক ঘটনার বিস্তারিত ইনফোর সাথেই দেয়া আছে।",
   advice: "এটি উকিলের পরামর্শ নয়।",
   receive: "কত টাকা পাবেন, তা এখানে বলা হয়নি।",
   proof: "টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।",
@@ -24,7 +24,7 @@ const BN = {
   ],
   sections:
     "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল এবং অবহেলা এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।",
-  kindsLabel: "টাকার ধরণঃ",
+  kindsLabel: "টাকার ধরনঃ",
   kinds: [
     "দাবি",
     "দেবে বলেছে",
@@ -40,7 +40,7 @@ const BN = {
 
 const EN = {
   intro:
-    "The compensation amounts here are taken from different news portals. Each incident's own link is given with its details.",
+    "The compensation amounts here are taken from different news portals. The news link is given with the incident's details.",
   advice: "This is not a lawyer's advice.",
   receive: "This does not say how much you would receive.",
   proof: "This is not proof the money was received.",
