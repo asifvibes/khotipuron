@@ -22,13 +22,16 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   const portrait = portraitOf(row);
   const bn = lang === "bn";
   const sources = [{ url: row.url, outlet: row.outlet }, ...row.extraSources];
+  const stake = <p className="lead">{stakeLine(row, lang)}</p>;
+  // Same story keeps the same place. A new story can land in a different one.
+  const slot = stakeSlot(row.id);
 
   return (
     <div>
       <p className="lead">{familyLine(row, lang)}</p>
       <p className="lead">{sceneSentence(row.scene, lang)}</p>
       {summary ? <p className="lead">{summary}</p> : null}
-      <p className="lead">{stakeLine(row, lang)}</p>
+      {slot === "middle" ? stake : null}
       {quote ? <p className="lead">{quote}</p> : null}
       {alsoQuote ? <p className="lead">{alsoQuote}</p> : null}
       <p className="lead">{dateLine(row, lang)}</p>
@@ -39,6 +42,7 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />
+      {slot === "before" ? stake : null}
       {sources.map((source) => (
         <p className="source-line" key={source.url}>
           {bn ? "নিউজ সোর্সঃ " : "News source: "}
@@ -47,8 +51,15 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
           </a>
         </p>
       ))}
+      {slot === "after" ? stake : null}
     </div>
   );
+}
+
+function stakeSlot(id: string): "middle" | "before" | "after" {
+  let n = 0;
+  for (let i = 0; i < id.length; i++) n = (n + id.charCodeAt(i)) % 3;
+  return n === 0 ? "middle" : n === 1 ? "before" : "after";
 }
 
 function reportedLine(row: CaseRow, text: string | null): string | null {
