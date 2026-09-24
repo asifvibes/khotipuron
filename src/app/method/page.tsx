@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "ক্ষতিপূরণ",
     locale: "bn_BD",
     type: "website",
-    images: [{ url: shareImage, width: 1200, height: 630, alt: "ক্ষতিপূরণ" }],
+    images: [{ url: shareImage, width: 1200, height: 1200, alt: "ক্ষতিপূরণ" }],
   },
   twitter: {
     card: "summary_large_image",
