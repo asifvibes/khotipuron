@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CaseFacts } from "@/components/case-facts";
+import { TopBar, usePrefs } from "@/components/prefs";
 import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cases } from "@/data/cases";
-import { familyLine, LANG_KEY, pickUnseen, sceneLabel, SEEN_KEY, toBnDigits } from "@/data/logic";
+import { familyLine, pickUnseen, sceneLabel, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
 type Phase = "loading" | "idle" | "death" | "card" | "empty";
@@ -35,13 +35,8 @@ function readSeen(): string[] {
   }
 }
 
-function readLang(): Lang {
-  const stored = localStorage.getItem(LANG_KEY);
-  return stored === "en" ? "en" : "bn";
-}
-
 export function Game() {
-  const [lang, setLang] = useState<Lang>("bn");
+  const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const [phase, setPhase] = useState<Phase>("loading");
   const [seen, setSeen] = useState<string[]>([]);
   const [current, setCurrent] = useState<CaseRow | null>(null);
@@ -57,7 +52,6 @@ export function Game() {
       window.history.replaceState({}, "", next ? `/?${next}` : "/");
     }
     const storedSeen = readSeen();
-    const storedLang = readLang();
     const seenIds = new Set(storedSeen);
     if (from && cases.some((row) => row.id === from)) seenIds.add(from);
     const nextSeen = [...seenIds];
@@ -65,7 +59,6 @@ export function Game() {
       localStorage.setItem(SEEN_KEY, JSON.stringify(nextSeen));
     }
     setSeen(nextSeen);
-    setLang(storedLang);
     const next = pickUnseen(cases, seenIds);
     if (!next) {
       setPhase("empty");
@@ -105,12 +98,6 @@ export function Game() {
     return () => window.clearTimeout(timer);
   }, [phase, current?.id]);
 
-  function toggleLang() {
-    const next: Lang = lang === "bn" ? "en" : "bn";
-    setLang(next);
-    localStorage.setItem(LANG_KEY, next);
-  }
-
   function replay() {
     const next = pickUnseen(cases, new Set(seen));
     if (!next) {
@@ -138,28 +125,12 @@ export function Game() {
     }
   }
 
-  const primary = lang;
-  const secondary: Lang = lang === "bn" ? "en" : "bn";
-
   return (
     <main className="shell">
-      <header className="top">
-        <div className="brand">
-          <p className="mark">ক্ষতিপূরণ</p>
-          <p className="mark-latin">Khotipuron</p>
-        </div>
-        <div className="controls">
-          <Button type="button" variant="outline" className="retro-btn" onClick={toggleLang}>
-            {lang === "bn" ? "English" : "বাংলা"}
-          </Button>
-          <Link className="text-link" href="/method">
-            {primary === "bn" ? "পদ্ধতি" : "Method"}
-          </Link>
-        </div>
-      </header>
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={toggleTheme} nav="game" />
 
       {phase === "loading" ? <p className="lead">…</p> : null}
-      {phase === "empty" ? <EmptyBoth /> : null}
+      {phase === "empty" ? <EmptyPool lang={lang} /> : null}
 
       {current && phase !== "loading" && phase !== "empty" ? (
         <Scene idle={idle} phase={phase === "idle" ? "idle" : "death"} scene={current.scene} />
@@ -170,59 +141,44 @@ export function Game() {
           <p className="lead">
             {phase === "idle"
               ? idle === "walk"
-                ? primary === "bn"
+                ? lang === "bn"
                   ? "হাঁটছিলেন।"
                   : "Walking."
-                : primary === "bn"
+                : lang === "bn"
                   ? "গাছের নিচে বসে ছিলেন।"
                   : "Sitting under a tree."
-              : primary === "bn"
-                ? `${sceneLabel[current.scene].bn}। সাধারণ মুহূর্ত এখানে থেমে গেল।`
-                : `${sceneLabel[current.scene].en}. The ordinary moment stopped.`}
-          </p>
-          <p className="sub">
-            {phase === "idle"
-              ? idle === "walk"
-                ? secondary === "bn"
-                  ? "হাঁটছিলেন।"
-                  : "Walking."
-                : secondary === "bn"
-                  ? "গাছের নিচে বসে ছিলেন।"
-                  : "Sitting under a tree."
-              : secondary === "bn"
+              : lang === "bn"
                 ? `${sceneLabel[current.scene].bn}। সাধারণ মুহূর্ত এখানে থেমে গেল।`
                 : `${sceneLabel[current.scene].en}. The ordinary moment stopped.`}
           </p>
           <Button type="button" variant="outline" className="retro-btn" onClick={skipWait}>
-            {primary === "bn" ? "এগোন" : "Continue"}
+            {lang === "bn" ? "এগোন" : "Continue"}
           </Button>
         </section>
       ) : null}
 
       {current && phase === "card" ? (
         <section>
-          <p className="lead">{familyLine(current, primary)}</p>
-          <p className="sub">{familyLine(current, secondary)}</p>
+          <p className="lead">{familyLine(current, lang)}</p>
           <div className="replay-row">
             <Button type="button" variant="outline" className="retro-btn" onClick={() => setReportOpen(true)}>
-              {primary === "bn" ? "প্রতিবেদন" : "The report"}
+              {lang === "bn" ? "প্রতিবেদন" : "The report"}
             </Button>
             <Button type="button" className="retro-btn" onClick={replay}>
-              {primary === "bn" ? "আরেকটি" : "Another"}
+              {lang === "bn" ? "আরেকটি" : "Another"}
             </Button>
           </div>
           {current.amountBdt != null ? (
             <p className="sub">
-              {primary === "bn" ? `${toBnDigits(String(seen.length))}টি দেখা হয়েছে` : `${seen.length} seen`}
+              {lang === "bn" ? `${toBnDigits(String(seen.length))}টি দেখা হয়েছে` : `${seen.length} seen`}
             </p>
           ) : null}
-          {!reportOpen ? <ShareActions row={current} lang={primary} /> : null}
+          {!reportOpen ? <ShareActions row={current} lang={lang} /> : null}
           <CaseDialog
             row={current}
             open={reportOpen}
             onOpenChange={setReportOpen}
-            primary={primary}
-            secondary={secondary}
+            lang={lang}
             onReplay={replay}
           />
         </section>
@@ -235,32 +191,30 @@ function CaseDialog({
   row,
   open,
   onOpenChange,
-  primary,
-  secondary,
+  lang,
   onReplay,
 }: {
   row: CaseRow;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  primary: Lang;
-  secondary: Lang;
+  lang: Lang;
   onReplay: () => void;
 }) {
-  const name = primary === "bn" ? row.nameBn : row.nameEn;
+  const name = lang === "bn" ? row.nameBn : row.nameEn;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>{name ?? (primary === "bn" ? "প্রতিবেদন" : "The report")}</DialogTitle>
-          <DialogDescription>{familyLine(row, primary)}</DialogDescription>
-          <CaseFacts row={row} primary={primary} secondary={secondary} />
-          <ShareActions row={row} lang={primary} />
+          <DialogTitle>{name ?? (lang === "bn" ? "প্রতিবেদন" : "The report")}</DialogTitle>
+          <DialogDescription>{familyLine(row, lang)}</DialogDescription>
+          <CaseFacts row={row} lang={lang} />
+          <ShareActions row={row} lang={lang} />
           <div className="replay-row">
             <Button type="button" className="retro-btn" onClick={onReplay}>
-              {primary === "bn" ? "আরেকটি" : "Another"}
+              {lang === "bn" ? "আরেকটি" : "Another"}
             </Button>
-            <DialogClose>{primary === "bn" ? "বন্ধ" : "Close"}</DialogClose>
+            <DialogClose>{lang === "bn" ? "বন্ধ" : "Close"}</DialogClose>
           </div>
         </DialogPopup>
       </DialogPortal>
@@ -268,12 +222,15 @@ function CaseDialog({
   );
 }
 
-function EmptyBoth() {
+function EmptyPool({ lang }: { lang: Lang }) {
   return (
     <section>
-      <p className="name">এই ফাইলের সব ঘটনা আপনি দেখে ফেলেছেন।</p>
-      <p className="lead">পুরনো ঘটনা আবার দেখানো হচ্ছে না।</p>
-      <p className="sub">You have seen every case in this file. Seen cases are not shown again.</p>
+      <p className="name">
+        {lang === "bn" ? "এই ফাইলের সব ঘটনা আপনি দেখে ফেলেছেন।" : "You have seen every case in this file."}
+      </p>
+      <p className="lead">
+        {lang === "bn" ? "পুরনো ঘটনা আবার দেখানো হচ্ছে না।" : "Seen cases are not shown again."}
+      </p>
     </section>
   );
 }

@@ -4,9 +4,9 @@ A phone game. You walk, or you sit under a tree. Then that ordinary moment stops
 
 The amount is the figure in the article, and the kind of figure it was. It is not a score. If the article discusses no sum, the screen says no Khotipuron amount was discussed and does not print a number. The public site name is [khotipuron.com](https://khotipuron.com). This repo does not deploy it.
 
-Bangla is first. English is the other line. A button switches which one sits on top. The wordmark stays ক্ষতিপূরণ, with Khotipuron under it.
+The screen is Bangla until you switch it. English replaces Bangla. It does not sit underneath. The same top bar switches to a light screen. Both choices stay on this phone.
 
-A case you have already seen stays on this phone (`localStorage`). When the file is finished, the screen says so in Bangla and English. It does not start the list over.
+A case you have already seen stays on this phone (`localStorage`). When the file is finished, the screen says so in the language you chose. It does not start the list over.
 
 From the report you can share the result. The link opens that same case, then offers a way to play and draw a different one. The preview uses the public origin `https://khotipuron.com`.
 

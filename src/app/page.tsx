@@ -4,7 +4,7 @@ import { Game } from "@/components/game";
 export const metadata: Metadata = {
   alternates: { canonical: "https://khotipuron.com" },
   openGraph: {
-    title: "ক্ষতিপূরণ / Khotipuron",
+    title: "ক্ষতিপূরণ",
     description:
       "একটা সাধারণ মুহূর্ত, তারপর একটি মৃত্যু, তারপর একটি সংবাদে ক্ষতিপূরণ নিয়ে যা আলোচিত হয়েছে।",
     url: "https://khotipuron.com",

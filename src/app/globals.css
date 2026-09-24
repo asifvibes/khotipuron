@@ -117,13 +117,43 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+html {
+  --ink: #efe6c9;
+  --muted: #b7b09a;
+  --bg: #12160f;
+  --gold: #e2b657;
+  --line: #efe6c9;
+  --stage: #243024;
+  --ground: #3c4a28;
+  --person: #efe6c9;
+  --torso: #d7c7a1;
+  --drain: #070806;
+  --water: #2c5670;
+  --popup: #12160f;
+}
+
+html[data-theme="light"] {
+  --ink: #1b1712;
+  --muted: #5c564a;
+  --bg: #f4efe3;
+  --gold: #8a5610;
+  --line: #1b1712;
+  --stage: #d7e4c6;
+  --ground: #7f9a55;
+  --person: #1b1712;
+  --torso: #5c4632;
+  --drain: #1b1712;
+  --water: #3d6e8c;
+  --popup: #f4efe3;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    background: #12160f;
-    color: #efe6c9;
+    background: var(--bg);
+    color: var(--ink);
     font-family: var(--font-bengali), "Noto Sans Bengali", sans-serif;
   }
 }
@@ -139,6 +169,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -153,31 +184,31 @@
   letter-spacing: 0.02em;
 }
 
-.mark-latin {
-  margin: 0.15rem 0 0;
-  color: #b7b09a;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-}
-
 .controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
 }
 
 .retro-btn {
   border-radius: 0 !important;
   min-height: 2.75rem;
-  border: 2px solid #efe6c9 !important;
+  border: 2px solid var(--line) !important;
   background: transparent !important;
-  color: #efe6c9 !important;
+  color: var(--ink) !important;
   box-shadow: none !important;
+}
+
+.settings-btn {
+  min-height: 2.5rem;
+  padding: 0.35rem 0.55rem !important;
 }
 
 .text-link,
 .links a {
-  color: #e2b657;
+  color: var(--gold);
   text-underline-offset: 3px;
 }
 
@@ -185,8 +216,8 @@
   position: relative;
   height: 11.5rem;
   overflow: hidden;
-  border: 3px solid #efe6c9;
-  background: #243024;
+  border: 3px solid var(--line);
+  background: var(--stage);
 }
 
 .ground {
@@ -195,7 +226,7 @@
   bottom: 0;
   left: 0;
   height: 30%;
-  background: #3c4a28;
+  background: var(--ground);
 }
 
 .lane {
@@ -204,7 +235,7 @@
   bottom: 18%;
   left: 0;
   height: 3px;
-  background: #efe6c9;
+  background: var(--line);
   opacity: 0.45;
 }
 
@@ -252,7 +283,7 @@
 .legs {
   display: block;
   margin: 0 auto;
-  background: #efe6c9;
+  background: var(--person);
 }
 
 .head {
@@ -264,7 +295,7 @@
   width: 14px;
   height: 12px;
   margin-top: 2px;
-  background: #d7c7a1;
+  background: var(--torso);
 }
 
 .legs {
@@ -298,7 +329,7 @@
   bottom: 32%;
   width: 34px;
   height: 14px;
-  background: #e2b657;
+  background: var(--gold);
   animation: slide 1.1s linear forwards;
 }
 
@@ -309,7 +340,7 @@
 }
 
 .death[data-scene="open_drain"] .ground {
-  background: linear-gradient(#3c4a28 42%, #070806 42%);
+  background: linear-gradient(var(--ground) 42%, var(--drain) 42%);
 }
 
 .death[data-scene="open_drain"] .person {
@@ -327,7 +358,7 @@
 
 .death[data-scene="fire"] .stage,
 .death[data-scene="fire"] {
-  background: #243024;
+  background: var(--stage);
 }
 
 .death[data-scene="fire"] .scan {
@@ -337,7 +368,7 @@
 
 .death[data-scene="river"] .ground {
   height: 48%;
-  background: #2c5670;
+  background: var(--water);
 }
 
 .death[data-scene="rail"] .hazard {
@@ -354,7 +385,7 @@
   left: 54%;
   width: 8px;
   height: 42px;
-  background: #d7c7a1;
+  background: var(--torso);
   transform-origin: bottom center;
   animation: tip 0.7s ease-in forwards;
 }
@@ -380,14 +411,14 @@
 .span,
 .scene-tag span {
   margin: 0.2rem 0 0.55rem;
-  color: #b7b09a;
+  color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.45;
 }
 
 .amount {
   margin: 0.8rem 0 0.2rem;
-  color: #e2b657;
+  color: var(--gold);
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.4;
@@ -395,13 +426,13 @@
 
 .amount span,
 .also {
-  color: #efe6c9;
+  color: var(--ink);
   font-size: 1rem;
   font-weight: 400;
 }
 
 .amount.none {
-  color: #efe6c9;
+  color: var(--ink);
 }
 
 .span {
@@ -481,8 +512,8 @@
   max-height: 84dvh;
   overflow: auto;
   transform: translateX(-50%);
-  border: 3px solid #efe6c9;
-  background: #12160f;
+  border: 3px solid var(--line);
+  background: var(--popup);
   padding: 1rem 1rem 1.25rem;
 }
 
@@ -511,9 +542,9 @@
 
 .copy-fallback {
   width: 100%;
-  border: 2px solid #efe6c9;
+  border: 2px solid var(--line);
   background: transparent;
-  color: #efe6c9;
+  color: var(--ink);
   padding: 0.6rem;
   font: inherit;
 }
@@ -526,5 +557,5 @@
   width: 7.5rem;
   height: 7.5rem;
   object-fit: cover;
-  border: 3px solid #efe6c9;
+  border: 3px solid var(--line);
 }

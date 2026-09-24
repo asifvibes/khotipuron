@@ -41,8 +41,7 @@ export default async function CaseCardImage({ params }: { params: Promise<{ id: 
           }}
         >
           <div style={{ display: "flex", fontSize: 42, fontWeight: 700 }}>ক্ষতিপূরণ</div>
-          <div style={{ display: "flex", fontSize: 28, color: "#b7b09a", marginTop: 8 }}>Khotipuron</div>
-          <div style={{ display: "flex", fontSize: 36, marginTop: 36 }}>{scene}</div>
+          <div style={{ display: "flex", fontSize: 36, marginTop: 28 }}>{scene}</div>
           <div
             style={{
               display: "flex",

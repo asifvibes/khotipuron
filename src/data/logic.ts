@@ -2,6 +2,7 @@ import type { AmountKind, CaseRow, Lang, SceneType } from "./types";
 
 export const SEEN_KEY = "ordinary-seen-ids";
 export const LANG_KEY = "ordinary-lang";
+export const THEME_KEY = "khotipuron-theme";
 
 const BN = "০১২৩৪৫৬৭৮৯";
 
@@ -107,10 +108,10 @@ export function shareText(row: CaseRow, lang: Lang): string {
   const y = discussedY(row, lang);
   if (lang === "bn") {
     const amount = y ? `আলোচিত ক্ষতিপূরণ: ${y}।` : "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি।";
-    return `${scene}। ${amount} খেলে দেখুন, Khotipuron / ক্ষতিপূরণ।`;
+    return `${scene}। ${amount} খেলে দেখুন।`;
   }
   const amount = y ? `Discussed Khotipuron: ${y}.` : "No Khotipuron amount was discussed.";
-  return `${scene}. ${amount} Try Khotipuron / ক্ষতিপূরণ.`;
+  return `${scene}. ${amount} Try Khotipuron.`;
 }
 
 export function ogTitle(row: CaseRow): string {
@@ -122,11 +123,8 @@ export function ogTitle(row: CaseRow): string {
 
 export function ogDescription(row: CaseRow): string {
   const y = discussedY(row, "bn");
-  if (!y) {
-    return "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি। খেলে দেখুন, Khotipuron / ক্ষতিপূরণ। No Khotipuron amount was discussed.";
-  }
-  const en = discussedY(row, "en");
-  return `${sceneLabel[row.scene].bn}। আলোচিত ক্ষতিপূরণ: ${y}। খেলে দেখুন, Khotipuron / ক্ষতিপূরণ। Discussed Khotipuron: ${en}.`;
+  if (!y) return "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি। খেলে দেখুন।";
+  return `${sceneLabel[row.scene].bn}। আলোচিত ক্ষতিপূরণ: ${y}। খেলে দেখুন।`;
 }
 
 export function safeText(row: CaseRow, text: string | null): string | null {

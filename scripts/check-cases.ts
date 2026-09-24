@@ -60,8 +60,14 @@ for (const row of cases) {
   }
   const url = publicCaseUrl(row.id);
   if (url !== `https://khotipuron.com/c/${row.id}`) throw new Error(`${row.id} public url`);
-  if (!shareText(row, "bn").includes("ক্ষতিপূরণ") || !shareText(row, "en").includes("Khotipuron")) {
-    throw new Error(`${row.id} share invite`);
+  if (!shareText(row, "bn").includes("ক্ষতিপূরণ") || shareText(row, "bn").includes("Khotipuron")) {
+    throw new Error(`${row.id} bangla share is not one language`);
+  }
+  if (!shareText(row, "en").includes("Khotipuron") || shareText(row, "en").includes("ক্ষতিপূরণ")) {
+    throw new Error(`${row.id} english share is not one language`);
+  }
+  if (ogDescription(row).includes("Khotipuron")) {
+    throw new Error(`${row.id} preview repeats English`);
   }
 }
 
