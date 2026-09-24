@@ -167,14 +167,32 @@ function CaseCard({
 }
 
 function EmptyPool({ lang }: { lang: Lang }) {
+  function goHome() {
+    localStorage.removeItem(SEEN_KEY);
+    window.location.assign("/");
+  }
+
+  const bn = lang === "bn";
   return (
     <section>
-      <p className="name">
-        {lang === "bn" ? "খেলায় যে খবর আসে, আপনি সেগুলো দেখে ফেলেছেন।" : "You have seen every story this game draws."}
-      </p>
       <p className="lead">
-        {lang === "bn" ? "একবার দেখা খবর আর আসে না।" : "A story you have seen does not come back."}
+        {bn
+          ? "বর্তমানে ওয়েবসাইটে থাকা সকল ঘটনার কথা আপনি জেনে ফেলেছেন। আগের পুরনো ঘটনাগুলো আবার দেখতে চাইলে হোমপেইজে ফিরে যান। অথবা আমাদেরকে নতুন ঘটনার কথা বলুন আমাদের ফেসবুক পেইজে।"
+          : "You have now seen every incident on the site. To see the earlier ones again, go back to the homepage. Or tell us about a new incident on our Facebook page."}
       </p>
+      <div className="pair">
+        <Button type="button" className="retro-btn pair-btn" onClick={goHome}>
+          {bn ? "হোমপেইজ" : "Homepage"}
+        </Button>
+        <a
+          className="retro-btn pair-btn"
+          href="https://www.facebook.com/khotipuronUpdate/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {bn ? "ফেসবুক পেইজ" : "Facebook page"}
+        </a>
+      </div>
     </section>
   );
 }
