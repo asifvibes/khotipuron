@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { track } from "@/components/analytics";
 import { Button } from "@/components/ui/button";
 import { LANG_KEY, THEME_KEY } from "@/data/logic";
 import type { Lang } from "@/data/types";
@@ -26,12 +27,14 @@ export function usePrefs() {
     setLang(next);
     localStorage.setItem(LANG_KEY, next);
     document.documentElement.lang = next === "en" ? "en" : "bn";
+    track("language_toggle", { lang: next });
   }
 
   function chooseTheme(next: Theme) {
     setTheme(next);
     localStorage.setItem(THEME_KEY, next);
     document.documentElement.dataset.theme = next;
+    track("theme_toggle", { theme: next });
   }
 
   return { lang, theme, toggleLang, chooseTheme };
@@ -45,6 +48,7 @@ export function TopBar({
   nav,
   onHome,
   homeHref = "/",
+  onMarkClick,
 }: {
   lang: Lang;
   theme: Theme;
@@ -53,6 +57,7 @@ export function TopBar({
   nav: "game" | "method";
   onHome?: () => void;
   homeHref?: string;
+  onMarkClick?: () => void;
 }) {
   const mark = lang === "bn" ? "ক্ষতিপূরণ" : "Khotipuron";
   return (
@@ -62,7 +67,7 @@ export function TopBar({
           {mark}
         </button>
       ) : (
-        <Link href={homeHref} className="mark">
+        <Link href={homeHref} className="mark" onClick={onMarkClick}>
           {mark}
         </Link>
       )}
@@ -83,6 +88,7 @@ export function TopBar({
           className="icon-btn"
           aria-label={lang === "bn" ? "বিস্তারিত" : "Details"}
           aria-current={nav === "method" ? "page" : undefined}
+          onClick={() => track("info_open")}
         >
           <InfoIcon />
         </Link>

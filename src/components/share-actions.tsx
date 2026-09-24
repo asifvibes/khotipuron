@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/components/analytics";
 import { publicCaseUrl, shareText } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
@@ -26,11 +27,13 @@ export function ShareActions({ row, lang }: { row: CaseRow; lang: Lang }) {
   }
 
   async function onInstagram() {
+    track("share", { channel: "instagram" });
     await copyUrl();
     setHint("ig");
   }
 
   async function onCopy() {
+    track("share", { channel: "copy" });
     const ok = await copyUrl();
     setHint(ok ? "copied" : "copied");
   }
@@ -38,16 +41,16 @@ export function ShareActions({ row, lang }: { row: CaseRow; lang: Lang }) {
   return (
     <div className="share-block">
       <div className="share-row">
-        <a className="icon-btn" href={facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
+        <a className="icon-btn" href={facebook} target="_blank" rel="noreferrer" aria-label="Facebook" onClick={() => track("share", { channel: "facebook" })}>
           <FacebookIcon />
         </a>
         <button type="button" className="icon-btn" onClick={onInstagram} aria-label="Instagram">
           <InstagramIcon />
         </button>
-        <a className="icon-btn" href={linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
+        <a className="icon-btn" href={linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" onClick={() => track("share", { channel: "linkedin" })}>
           <LinkedInIcon />
         </a>
-        <a className="icon-btn" href={whatsapp} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+        <a className="icon-btn" href={whatsapp} target="_blank" rel="noreferrer" aria-label="WhatsApp" onClick={() => track("share", { channel: "whatsapp" })}>
           <WhatsAppIcon />
         </a>
         <button type="button" className="icon-btn" onClick={onCopy} aria-label={bn ? "লিংক কপি" : "Copy link"}>

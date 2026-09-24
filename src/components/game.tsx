@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "@/components/analytics";
 import { CaseFacts } from "@/components/case-facts";
 import { TopBar, usePrefs } from "@/components/prefs";
 import { Scene } from "@/components/scene";
@@ -97,7 +98,12 @@ export function Game() {
     return () => window.clearTimeout(timer);
   }, [phase, current]);
 
-  function replay() {
+  useEffect(() => {
+    if (phase === "card" && current) track("story_detail", { id: current.id, surface: "play" });
+  }, [phase, current]);
+
+  function replay(source: "wordmark" | "button") {
+    track("another_story", { source });
     const next = pickUnseen(cases, new Set(seen));
     if (!next) {
       setCurrent(null);
@@ -111,7 +117,7 @@ export function Game() {
 
   return (
     <main className="shell">
-      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" onHome={replay} />
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" onHome={() => replay("wordmark")} />
 
       {phase === "loading" ? <p className="lead">…</p> : null}
       {phase === "empty" ? <EmptyPool lang={lang} /> : null}
@@ -132,7 +138,7 @@ export function Game() {
       {current && phase === "accident" ? <p className="death-line">{deathLine(current.scene, lang)}</p> : null}
 
       {current && phase === "card" ? (
-        <CaseCard row={current} lang={lang} read={new Set(seen).add(current.id).size} onReplay={replay} />
+        <CaseCard row={current} lang={lang} read={new Set(seen).add(current.id).size} onReplay={() => replay("button")} />
       ) : null}
     </main>
   );

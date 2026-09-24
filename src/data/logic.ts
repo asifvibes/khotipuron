@@ -30,9 +30,15 @@ export const kindLabel: Record<AmountKind, { bn: string; en: string }> = {
 export const NO_AMOUNT_BN = "ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।";
 export const NO_AMOUNT_EN = "The article does not mention a compensation amount.";
 
-/** Every collected case can be drawn. Amount cases are played before the rest. */
+/** Every collected case can be drawn. Paid amounts, then mentioned amounts, then the rest. */
 export function inDraw(_row: CaseRow): boolean {
   return true;
+}
+
+/** 0 when an amount was paid or handed over, 1 when an amount is only mentioned, 2 when there is no amount. */
+export function paymentRank(row: CaseRow): number {
+  if (row.amountBdt == null) return 2;
+  return row.paid === true ? 0 : 1;
 }
 
 export function toBnDigits(value: string): string {
@@ -78,8 +84,8 @@ export function pickUnseen(
 ): CaseRow | null {
   const unseen = rows.filter((row) => inDraw(row) && !seen.has(row.id));
   if (unseen.length === 0) return null;
-  const money = unseen.filter((row) => row.amountBdt != null);
-  const pool = money.length > 0 ? money : unseen;
+  const best = Math.min(...unseen.map(paymentRank));
+  const pool = unseen.filter((row) => paymentRank(row) === best);
   const scenes = [...new Set(pool.map((row) => row.scene))];
   const scene = scenes[Math.floor(random() * scenes.length)];
   const group = pool.filter((row) => row.scene === scene);

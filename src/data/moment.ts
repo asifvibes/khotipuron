@@ -269,6 +269,50 @@ const ACT: Record<string, { bn: string; en: string }> = {
     bn: "খেলছিলেন",
     en: "was playing",
   },
+  "sumonti-chakma-sajek": {
+    bn: "সন্তান প্রসবের জন্য হাসপাতালে যাওয়ার পথে অটোরিকশায় ছিলেন",
+    en: "was travelling by auto-rickshaw to a hospital to give birth",
+  },
+  "ahidul-islam-gazipur": {
+    bn: "ছিলেন",
+    en: "was there",
+  },
+  "faruq-bin-abdullah-magferat": {
+    bn: "মাছ ধরার ট্রলার ঘাটে ভিড়ানোর সময় ক্যাপ্টেন হিসেবে ছিলেন",
+    en: "was serving as captain while a fishing trawler tried to dock",
+  },
+  "abdul-motaleb-magferat": {
+    bn: "ছিলেন",
+    en: "was there",
+  },
+  "abul-bashar-magferat": {
+    bn: "মাছ ধরার ট্রলারে নাবিক হিসেবে ছিলেন",
+    en: "was a sailor on a fishing trawler",
+  },
+  "pradeep-chowdhury-magferat": {
+    bn: "মাছ ধরার ট্রলারে গ্রিজার হিসেবে কাজ করছিলেন",
+    en: "was working as a greaser on a fishing trawler",
+  },
+  "zahir-uddin-magferat": {
+    bn: "মাছ ধরার ট্রলারে ফিশ মাস্টার হিসেবে কাজ করছিলেন",
+    en: "was working as fish master on a fishing trawler",
+  },
+  "zahirul-islam-magferat": {
+    bn: "মাছ ধরার ট্রলারে সেকেন্ড ইঞ্জিনিয়ার হিসেবে কাজ করছিলেন",
+    en: "was working as second engineer on a fishing trawler",
+  },
+  "saiful-islam-magferat": {
+    bn: "মাছ ধরার ট্রলারে চিফ অফিসার হিসেবে কাজ করছিলেন",
+    en: "was working as chief officer on a fishing trawler",
+  },
+  "rahmat-ali-magferat": {
+    bn: "মাছ ধরার ট্রলারে ডক মাস্টার হিসেবে কাজ করছিলেন",
+    en: "was working as dock master on a fishing trawler",
+  },
+  "abul-kalam-farmgate": {
+    bn: "খামারবাড়ির পাশের ফুটপাত দিয়ে চলছিলেন",
+    en: "was walking along the footpath beside Khamarbari",
+  },
 };
 
 export function momentLine(row: CaseRow, _idle: Idle, lang: Lang): string {

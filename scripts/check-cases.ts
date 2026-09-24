@@ -11,6 +11,7 @@ import {
   NO_AMOUNT_EN,
   ogDescription,
   ogTitle,
+  paymentRank,
   pickUnseen,
   publicCaseUrl,
   shareText,
@@ -60,6 +61,15 @@ if (pickUnseen(cases, seen) !== null) throw new Error("pool recycled");
 const moneyCount = cases.filter((row) => row.amountBdt != null).length;
 if (order.slice(0, moneyCount).some((row) => row.amountBdt == null)) throw new Error("a no-amount case played before the amounts");
 if (order.slice(moneyCount).some((row) => row.amountBdt != null)) throw new Error("an amount case played after the rest");
+let rankSeen = 0;
+for (const row of order) {
+  const rank = paymentRank(row);
+  if (rank < rankSeen) throw new Error(`${row.id} played before an earlier payment rank`);
+  rankSeen = rank;
+}
+for (const row of cases) {
+  if (row.paid === true && row.amountBdt == null) throw new Error(`${row.id} is paid without an amount`);
+}
 if (!seen.has("khalid-rahman-kurigram")) throw new Error("a collected case was left out of the draw");
 
 for (const row of cases) {
@@ -181,7 +191,7 @@ if (!firoza || !familyLine(firoza, "en").includes("Firoza Begum") || !firoza.url
 }
 
 const roadGov = kindSpan(cases, "road", "government");
-if (!roadGov || roadGov.low !== 20000 || roadGov.high !== 25000) {
+if (!roadGov || roadGov.low !== 20000 || roadGov.high !== 500000) {
   throw new Error(`unexpected road government span ${JSON.stringify(roadGov)}`);
 }
 

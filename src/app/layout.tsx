@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Bengali } from "next/font/google";
+import { CfBeacon } from "@/components/analytics";
 import { LANG_KEY, THEME_KEY } from "@/data/logic";
 import "./globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <CfBeacon />
       </body>
     </html>
   );

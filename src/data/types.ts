@@ -56,6 +56,8 @@ export type CaseRow = {
   doingBn: string | null;
   amountBdt: number | null;
   amountKind: AmountKind;
+  /** True when the article says the amount was paid or handed over. */
+  paid?: boolean;
   quoteEn: string;
   quoteBn: string;
   also: AlsoAmount | null;
