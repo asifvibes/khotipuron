@@ -30,15 +30,28 @@ export const kindLabel: Record<AmountKind, { bn: string; en: string }> = {
 export const NO_AMOUNT_BN = "ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।";
 export const NO_AMOUNT_EN = "The article does not mention a compensation amount.";
 
-/** One no-amount row stays in the draw. The rest stay in the file. */
-export const DRAW_NONE_ID = "faria-tasnim-tongi";
-
-export function inDraw(row: CaseRow): boolean {
-  return row.amountBdt != null || row.id === DRAW_NONE_ID;
+/** Every collected case can be drawn. Amount cases are played before the rest. */
+export function inDraw(_row: CaseRow): boolean {
+  return true;
 }
 
 export function toBnDigits(value: string): string {
   return value.replace(/\d/g, (digit) => BN[Number(digit)] ?? digit);
+}
+
+export function stakeLine(row: CaseRow, lang: Lang): string {
+  if (row.amountBdt != null) {
+    const taka = formatTaka(row.amountBdt, lang);
+    if (lang === "bn") return `আপনি এভাবে মারা গেলে আপনার জীবনের মূল্য হবে ${taka}। খুব কম হয়ে গেল না? নাকি বেশি?`;
+    return `If you died this way, your life's value would be ${taka}. Is that too little? Or too much?`;
+  }
+  const name = lang === "bn" ? row.nameBn : row.nameEn;
+  if (lang === "bn") {
+    const who = name ? `${name}-এর পরিবার` : "পরিবারটি";
+    return `আপনি এভাবে মারা গেলে আপনার পরিবার মনে হয় না কোনো ক্ষতিপূরণ পাবে, কারণ ${who} কোনো টাকা পায়নি ক্ষতিপূরণ হিসেবে। হায়রে কপাল!`;
+  }
+  const who = name ? `${name}'s family` : "that family";
+  return `If you died this way, your family does not seem likely to get any compensation, because ${who} received no money as compensation. What a fate.`;
 }
 
 export function collectedLine(total: number, read: number, lang: Lang): string {
@@ -66,11 +79,7 @@ export function pickUnseen(
   const unseen = rows.filter((row) => inDraw(row) && !seen.has(row.id));
   if (unseen.length === 0) return null;
   const money = unseen.filter((row) => row.amountBdt != null);
-  const rest = unseen.filter((row) => row.amountBdt == null);
-  let pool = unseen;
-  if (money.length > 0 && rest.length > 0) pool = random() < 0.9 ? money : rest;
-  else if (money.length > 0) pool = money;
-  else pool = rest;
+  const pool = money.length > 0 ? money : unseen;
   const scenes = [...new Set(pool.map((row) => row.scene))];
   const scene = scenes[Math.floor(random() * scenes.length)];
   const group = pool.filter((row) => row.scene === scene);

@@ -1,8 +1,8 @@
 import { cases } from "../src/data/cases";
 import { momentLine } from "../src/data/moment";
 import {
-  DRAW_NONE_ID,
   familyLine,
+  stakeLine,
   hasDigit,
   inDraw,
   incidentSummary,
@@ -44,6 +44,7 @@ for (const row of cases) {
 
 const drawIds = cases.filter(inDraw).map((row) => row.id);
 const seen = new Set<string>();
+const order: (typeof cases)[number][] = [];
 let guard = 0;
 while (guard < cases.length + 2) {
   const next = pickUnseen(cases, seen, () => 0);
@@ -51,17 +52,15 @@ while (guard < cases.length + 2) {
   if (seen.has(next.id)) throw new Error("pick returned a seen id");
   if (!inDraw(next)) throw new Error(`${next.id} was drawn outside the pool`);
   seen.add(next.id);
+  order.push(next);
   guard += 1;
 }
-if (seen.size !== drawIds.length) throw new Error(`draw stopped at ${seen.size}, pool is ${drawIds.length}`);
+if (seen.size !== cases.length) throw new Error(`draw stopped at ${seen.size}, file has ${cases.length}`);
 if (pickUnseen(cases, seen) !== null) throw new Error("pool recycled");
-const moneyIds = cases.filter((row) => row.amountBdt != null).map((row) => row.id);
-if (!moneyIds.every((id) => seen.has(id))) throw new Error("an amount case was left out of the draw");
-if (seen.has("khalid-rahman-kurigram")) throw new Error("a held-back case was drawn");
-if (!seen.has(DRAW_NONE_ID)) throw new Error("the kept no-amount case was not drawn");
-if (drawIds.length >= cases.filter((row) => row.amountBdt == null).length) {
-  throw new Error("most no-amount rows are still in the draw");
-}
+const moneyCount = cases.filter((row) => row.amountBdt != null).length;
+if (order.slice(0, moneyCount).some((row) => row.amountBdt == null)) throw new Error("a no-amount case played before the amounts");
+if (order.slice(moneyCount).some((row) => row.amountBdt != null)) throw new Error("an amount case played after the rest");
+if (!seen.has("khalid-rahman-kurigram")) throw new Error("a collected case was left out of the draw");
 
 for (const row of cases) {
   for (const lang of ["bn", "en"] as const) {
@@ -117,6 +116,31 @@ if (!mehedi || familyLine(mehedi, "bn") !== mehediBn || incidentSummary(mehedi, 
 }
 if (familyLine(mehedi, "bn").includes("টাকার ধরন") || familyLine(mehedi, "en").includes("said handed")) {
   throw new Error("mehedi still names the money's kind");
+}
+const mehediStake =
+  "আপনি এভাবে মারা গেলে আপনার জীবনের মূল্য হবে ৯,০০,০০০ টাকা। খুব কম হয়ে গেল না? নাকি বেশি?";
+if (stakeLine(mehedi, "bn") !== mehediStake) throw new Error(`mehedi stake drifted: ${stakeLine(mehedi, "bn")}`);
+const unnamed = cases.find((row) => row.id === "unnamed-cng-passenger-trishal");
+const unnamedStake =
+  "আপনি এভাবে মারা গেলে আপনার পরিবার মনে হয় না কোনো ক্ষতিপূরণ পাবে, কারণ পরিবারটি কোনো টাকা পায়নি ক্ষতিপূরণ হিসেবে। হায়রে কপাল!";
+if (!unnamed || unnamed.nameBn || stakeLine(unnamed, "bn") !== unnamedStake) {
+  throw new Error(`unnamed stake drifted: ${unnamed ? stakeLine(unnamed, "bn") : "missing"}`);
+}
+if (stakeLine(unnamed, "en").includes("null") || !stakeLine(unnamed, "en").includes("that family")) {
+  throw new Error("unnamed english stake invents a name");
+}
+for (const row of cases) {
+  const bn = stakeLine(row, "bn");
+  if (bn.includes("বেশী")) throw new Error(`${row.id} spells বেশী`);
+  if (row.amountBdt != null) {
+    if (!bn.includes("নাকি বেশি?") || !bn.endsWith("নাকি বেশি?")) throw new Error(`${row.id} amount stake drifted`);
+  } else {
+    if (!bn.includes("কোনো ক্ষতিপূরণ") || !bn.includes("পায়নি") || !bn.includes("হিসেবে")) {
+      throw new Error(`${row.id} no-amount stake drifted`);
+    }
+    if (!row.nameBn && !bn.includes("পরিবারটি")) throw new Error(`${row.id} blank name`);
+    if (row.nameBn && !bn.includes(`${row.nameBn}-এর পরিবার`)) throw new Error(`${row.id} stake drops the name`);
+  }
 }
 
 const bannedCountdown = ["মাসেরর", "তার্ক্ষই", "মানুহশ", "তেমননি", "বিশ্রাম", "বেস"];

@@ -5,6 +5,7 @@ import {
   dateLine,
   familyLine,
   incidentSummary,
+  stakeLine,
   NO_AMOUNT_BN,
   NO_AMOUNT_EN,
   portraitOf,
@@ -27,6 +28,7 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
       <p className="lead">{familyLine(row, lang)}</p>
       <p className="lead">{sceneSentence(row.scene, lang)}</p>
       {summary ? <p className="lead">{summary}</p> : null}
+      <p className="lead">{stakeLine(row, lang)}</p>
       {quote ? <p className="lead">{quote}</p> : null}
       {alsoQuote ? <p className="lead">{alsoQuote}</p> : null}
       <p className="lead">{dateLine(row, lang)}</p>
