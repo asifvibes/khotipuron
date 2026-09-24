@@ -1,9 +1,13 @@
 import { cases } from "../src/data/cases";
 import {
+  DRAW_NONE_ID,
   familyLine,
   hasDigit,
+  inDraw,
   incidentSummary,
   kindSpan,
+  NO_AMOUNT_BN,
+  NO_AMOUNT_EN,
   ogDescription,
   ogTitle,
   pickUnseen,
@@ -23,6 +27,9 @@ for (const row of cases) {
     if (digit.test(row.quoteEn) || digit.test(row.quoteBn)) {
       throw new Error(`${row.id} none quote contains a digit`);
     }
+    if (row.quoteBn !== NO_AMOUNT_BN || row.quoteEn !== NO_AMOUNT_EN) {
+      throw new Error(`${row.id} none quote drifted`);
+    }
     if (row.also) throw new Error(`${row.id} none case has a second amount`);
   } else if (row.amountBdt == null || row.amountBdt <= 0) {
     throw new Error(`${row.id} missing amount`);
@@ -33,17 +40,26 @@ for (const row of cases) {
   }
 }
 
+const drawIds = cases.filter(inDraw).map((row) => row.id);
 const seen = new Set<string>();
 let guard = 0;
 while (guard < cases.length + 2) {
   const next = pickUnseen(cases, seen, () => 0);
   if (!next) break;
   if (seen.has(next.id)) throw new Error("pick returned a seen id");
+  if (!inDraw(next)) throw new Error(`${next.id} was drawn outside the pool`);
   seen.add(next.id);
   guard += 1;
 }
-if (seen.size !== cases.length) throw new Error(`draw stopped at ${seen.size}`);
+if (seen.size !== drawIds.length) throw new Error(`draw stopped at ${seen.size}, pool is ${drawIds.length}`);
 if (pickUnseen(cases, seen) !== null) throw new Error("pool recycled");
+const moneyIds = cases.filter((row) => row.amountBdt != null).map((row) => row.id);
+if (!moneyIds.every((id) => seen.has(id))) throw new Error("an amount case was left out of the draw");
+if (seen.has("khalid-rahman-kurigram")) throw new Error("a held-back case was drawn");
+if (!seen.has(DRAW_NONE_ID)) throw new Error("the kept no-amount case was not drawn");
+if (drawIds.length >= cases.filter((row) => row.amountBdt == null).length) {
+  throw new Error("most no-amount rows are still in the draw");
+}
 
 for (const row of cases) {
   for (const lang of ["bn", "en"] as const) {
@@ -54,6 +70,13 @@ for (const row of cases) {
     if (row.amountBdt == null && hasDigit(spoken)) {
       throw new Error(`${row.id} ${lang} prints a digit without an amount`);
     }
+    if (row.amountBdt == null && lang === "bn" && familyLine(row, "bn") !== NO_AMOUNT_BN) {
+      throw new Error(`${row.id} bangla line drifted`);
+    }
+    if (row.amountBdt == null && lang === "en" && familyLine(row, "en") !== NO_AMOUNT_EN) {
+      throw new Error(`${row.id} english line drifted`);
+    }
+    if (spoken.includes("অঙ্ক")) throw new Error(`${row.id} uses অঙ্ক`);
   }
   if (row.amountBdt == null && (hasDigit(ogTitle(row)) || hasDigit(ogDescription(row)))) {
     throw new Error(`${row.id} preview prints a digit`);
@@ -81,4 +104,4 @@ if (!roadGov || roadGov.low !== 20000 || roadGov.high !== 25000) {
   throw new Error(`unexpected road government span ${JSON.stringify(roadGov)}`);
 }
 
-console.log(`ok ${cases.length} cases, draw does not recycle`);
+console.log(`ok ${cases.length} cases, draw ${drawIds.length}, does not recycle`);

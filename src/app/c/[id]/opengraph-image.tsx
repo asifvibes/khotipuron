@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { findCase } from "@/data/cases";
-import { discussedY, sceneLabel } from "@/data/logic";
+import { discussedY, NO_AMOUNT_BN, sceneLabel } from "@/data/logic";
 
 export const runtime = "nodejs";
 export const alt = "ক্ষতিপূরণ";
@@ -14,7 +14,7 @@ export default async function CaseCardImage({ params }: { params: Promise<{ id: 
   const row = findCase(id);
   const font = await readFile(join(process.cwd(), "src/fonts/NotoSansBengali-Bold.ttf"));
   const scene = row ? sceneLabel[row.scene].bn : "ক্ষতিপূরণ";
-  const amount = row ? (discussedY(row, "bn") ?? "টাকার কথা নেই") : "ক্ষতিপূরণ";
+  const amount = row ? (discussedY(row, "bn") ?? NO_AMOUNT_BN) : "ক্ষতিপূরণ";
   const amountSize = amount.length > 28 ? 46 : 64;
 
   return new ImageResponse(

@@ -16,13 +16,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cases } from "@/data/cases";
-import { familyLine, pickUnseen, sceneLabel, SEEN_KEY, toBnDigits } from "@/data/logic";
+import { deathLine, familyLine, ordinaryLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
-type Phase = "loading" | "idle" | "count" | "card" | "empty";
+type Phase = "loading" | "idle" | "count" | "accident" | "card" | "empty";
 type Idle = "walk" | "sit";
 
-const IDLE_MS = 6500;
+const IDLE_MS = 2200;
+const ACCIDENT_MS = 1800;
 
 function readSeen(): string[] {
   try {
@@ -80,22 +81,30 @@ export function Game() {
 
   useEffect(() => {
     if (phase !== "count" || !current) return;
-    const id = current.id;
     const timer = window.setTimeout(() => {
-      if (count <= 1) {
-        setSeen((prev) => {
-          if (prev.includes(id)) return prev;
-          const next = [...prev, id];
-          localStorage.setItem(SEEN_KEY, JSON.stringify(next));
-          return next;
-        });
-        setPhase("card");
+      if (count <= 0) {
+        setPhase("accident");
         return;
       }
       setCount((value) => value - 1);
     }, 1000);
     return () => window.clearTimeout(timer);
   }, [phase, count, current]);
+
+  useEffect(() => {
+    if (phase !== "accident" || !current) return;
+    const id = current.id;
+    const timer = window.setTimeout(() => {
+      setSeen((prev) => {
+        if (prev.includes(id)) return prev;
+        const next = [...prev, id];
+        localStorage.setItem(SEEN_KEY, JSON.stringify(next));
+        return next;
+      });
+      setPhase("card");
+    }, ACCIDENT_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, current]);
 
   useEffect(() => {
     if (phase !== "card") {
@@ -120,12 +129,6 @@ export function Game() {
     setPhase("idle");
   }
 
-  function beginCount() {
-    if (phase !== "idle") return;
-    setCount(5);
-    setPhase("count");
-  }
-
   return (
     <main className="shell">
       <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" />
@@ -136,35 +139,15 @@ export function Game() {
       {current && phase !== "loading" && phase !== "empty" ? (
         <Scene
           idle={idle}
-          phase={phase === "idle" || (phase === "count" && count > 2) ? "idle" : "death"}
+          phase={phase === "accident" || phase === "card" ? "death" : "idle"}
           scene={current.scene}
-          rush={phase === "count"}
-          hit={phase === "count" && count === 1}
+          hit={phase === "accident"}
           countLabel={phase === "count" ? (lang === "bn" ? toBnDigits(String(count)) : String(count)) : null}
         />
       ) : null}
 
-      {current && (phase === "idle" || phase === "count") ? (
-        <section>
-          <p className="lead">
-            {phase === "count" && count <= 2
-              ? lang === "bn"
-                ? `${sceneLabel[current.scene].bn}। মারা গেলেন।`
-                : `${sceneLabel[current.scene].en}. They died.`
-              : idle === "walk"
-                ? lang === "bn"
-                  ? "হাঁটছিলেন।"
-                  : "Walking."
-                : lang === "bn"
-                  ? "গাছের নিচে বসে ছিলেন।"
-                  : "Sitting under a tree."}
-          </p>
-          {phase === "idle" ? (
-            <Button type="button" variant="outline" className="retro-btn pair-btn" onClick={beginCount}>
-              {lang === "bn" ? "চলুন" : "Go"}
-            </Button>
-          ) : null}
-        </section>
+      {current && (phase === "idle" || phase === "count" || phase === "accident") ? (
+        <p className="lead">{phase === "accident" ? deathLine(current.scene, lang) : ordinaryLine(idle, lang)}</p>
       ) : null}
 
       {current && phase === "card" ? (
@@ -180,7 +163,7 @@ export function Game() {
           </div>
           {current.amountBdt != null ? (
             <p className="sub">
-              {lang === "bn" ? `${toBnDigits(String(seen.length))}টি খবর দেখা হয়েছে` : `${seen.length} stories seen`}
+              {lang === "bn" ? `আপনি এ পর্যন্ত ${toBnDigits(String(seen.length))}টি খবর দেখেছেন।` : `You have seen ${seen.length} stories so far.`}
             </p>
           ) : null}
           {!reportOpen ? <ShareActions row={current} lang={lang} /> : null}
@@ -216,7 +199,7 @@ function CaseDialog({
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>{name ?? (lang === "bn" ? "খবর" : "The news")}</DialogTitle>
+          <DialogTitle>{name ?? (lang === "bn" ? "এই খবর" : "This report")}</DialogTitle>
           <DialogDescription>{familyLine(row, lang)}</DialogDescription>
           <CaseFacts row={row} lang={lang} />
           <ShareActions row={row} lang={lang} />
@@ -236,10 +219,10 @@ function EmptyPool({ lang }: { lang: Lang }) {
   return (
     <section>
       <p className="name">
-        {lang === "bn" ? "সব খবর দেখা হয়ে গেছে।" : "You have seen every story."}
+        {lang === "bn" ? "খেলায় যে খবর আসে, আপনি সেগুলো দেখে ফেলেছেন।" : "You have seen every story this game draws."}
       </p>
       <p className="lead">
-        {lang === "bn" ? "দেখা খবর আর আসবে না।" : "Seen stories do not come back."}
+        {lang === "bn" ? "একবার দেখা খবর আর আসে না।" : "A story you have seen does not come back."}
       </p>
     </section>
   );

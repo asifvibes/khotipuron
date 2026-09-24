@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import {
-  articleYear,
+  dateLine,
   formatTaka,
   incidentSummary,
   kindLabel,
   portraitOf,
   safeText,
-  sceneLabel,
-  toBnDigits,
+  sceneSentence,
 } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
@@ -18,37 +17,32 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   const quote = safeText(row, lang === "bn" ? row.quoteBn : row.quoteEn);
   const note = safeText(row, lang === "bn" ? row.noteBn : row.noteEn);
   const portrait = portraitOf(row);
-  const year = row.amountBdt == null ? null : articleYear(row.published);
 
   return (
     <div>
-      <p className="scene-tag">{sceneLabel[row.scene][lang]}</p>
+      <p className="scene-tag">{sceneSentence(row.scene, lang)}</p>
       {summary ? <p className="lead">{summary}</p> : null}
       {quote ? <p className="quote">{quote}</p> : null}
       {row.also && row.amountBdt != null ? (
         <p className="also">
-          {lang === "bn" ? "একই খবরে আলাদা টাকা: " : "Same story, a separate sum: "}
-          {formatTaka(row.also.amountBdt, lang)} · {kindLabel[row.also.amountKind][lang]}
+          {lang === "bn" ? "একই খবরে আলাদা আরও একটি টাকার কথা আছে: " : "The same article also states a separate amount: "}
+          {formatTaka(row.also.amountBdt, lang)} ({kindLabel[row.also.amountKind][lang]})
         </p>
       ) : null}
-      {year ? (
-        <p className="sub">
-          {lang === "bn" ? `খবরের বছর ${toBnDigits(year)}` : `Reported in ${year}`}
-        </p>
-      ) : null}
+      <p className="sub">{dateLine(row, lang)}</p>
       {note ? <p className="note">{note}</p> : null}
       {row.othersDied ? (
         <p className="sub">
           {lang === "bn"
             ? "একই ঘটনায় আরও মানুষ মারা গেছেন।"
-            : "Other people died in the same incident."}
+            : "The article says other people died in the same incident."}
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />
-      <p className="note">{lang === "bn" ? "এটা খবরে যা লেখা।" : "This is what the news wrote."}</p>
-      <p className="note">{lang === "bn" ? "উকিলের পরামর্শ নয়।" : "Not a lawyer's advice."}</p>
-      <p className="note">{lang === "bn" ? "কত টাকা পাবেন, তা এখানে বলা নেই।" : "Not a forecast."}</p>
-      <p className="note">{lang === "bn" ? "টাকা পেয়েছেন কি না, তার প্রমাণ নয়।" : "Not proof the money was received."}</p>
+      <p className="note">{lang === "bn" ? "এখানে যা লেখা, তা ওই খবর থেকে নেওয়া।" : "What is written here is taken from that article."}</p>
+      <p className="note">{lang === "bn" ? "এটি উকিলের পরামর্শ নয়।" : "This is not a lawyer's advice."}</p>
+      <p className="note">{lang === "bn" ? "কত টাকা পাবেন, তা এখানে বলা হয়নি।" : "This does not say how much you would receive."}</p>
+      <p className="note">{lang === "bn" ? "টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।" : "This is not proof the money was received."}</p>
       <p className="links">
         <a href={row.url} target="_blank" rel="noreferrer">
           {row.outlet}

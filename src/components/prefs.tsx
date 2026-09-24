@@ -62,25 +62,15 @@ export function TopBar({
         <button
           type="button"
           className="icon-btn"
-          aria-label={lang === "bn" ? "আলো" : "Light"}
-          aria-pressed={theme === "light"}
-          onClick={() => onTheme("light")}
+          aria-label={theme === "dark" ? (lang === "bn" ? "আলো" : "Light") : lang === "bn" ? "কালো" : "Dark"}
+          onClick={() => onTheme(theme === "dark" ? "light" : "dark")}
         >
-          <SunIcon />
-        </button>
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label={lang === "bn" ? "কালো" : "Dark"}
-          aria-pressed={theme === "dark"}
-          onClick={() => onTheme("dark")}
-        >
-          <MoonIcon />
+          {theme === "dark" ? <SunIcon /> : <MoonIcon />}
         </button>
         <Link
           href="/method"
           className="icon-btn"
-          aria-label={lang === "bn" ? "টাকার কথা" : "The money"}
+          aria-label={lang === "bn" ? "বিস্তারিত" : "Details"}
           aria-current={nav === "method" ? "page" : undefined}
         >
           <InfoIcon />
