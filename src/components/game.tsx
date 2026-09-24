@@ -6,15 +6,6 @@ import { TopBar, usePrefs } from "@/components/prefs";
 import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogDescription,
-  DialogPopup,
-  DialogPortal,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { cases } from "@/data/cases";
 import { deathLine, familyLine, ordinaryLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
@@ -42,7 +33,6 @@ export function Game() {
   const [seen, setSeen] = useState<string[]>([]);
   const [current, setCurrent] = useState<CaseRow | null>(null);
   const [idle, setIdle] = useState<Idle>("walk");
-  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -106,26 +96,15 @@ export function Game() {
     return () => window.clearTimeout(timer);
   }, [phase, current]);
 
-  useEffect(() => {
-    if (phase !== "card") {
-      setReportOpen(false);
-      return;
-    }
-    const timer = window.setTimeout(() => setReportOpen(true), 700);
-    return () => window.clearTimeout(timer);
-  }, [phase, current?.id]);
-
   function replay() {
     const next = pickUnseen(cases, new Set(seen));
     if (!next) {
       setCurrent(null);
-      setReportOpen(false);
       setPhase("empty");
       return;
     }
     setCurrent(next);
     setIdle(Math.random() < 0.5 ? "walk" : "sit");
-    setReportOpen(false);
     setPhase("idle");
   }
 
@@ -151,67 +130,39 @@ export function Game() {
       ) : null}
 
       {current && phase === "card" ? (
-        <section>
-          <p className="lead">{familyLine(current, lang)}</p>
-          <div className="pair">
-            <Button type="button" variant="outline" className="retro-btn pair-btn" onClick={() => setReportOpen(true)}>
-              {lang === "bn" ? "খবর" : "The news"}
-            </Button>
-            <Button type="button" className="retro-btn pair-btn" onClick={replay}>
-              {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
-            </Button>
-          </div>
-          {current.amountBdt != null ? (
-            <p className="sub">
-              {lang === "bn" ? `আপনি এ পর্যন্ত ${toBnDigits(String(seen.length))}টি খবর দেখেছেন।` : `You have seen ${seen.length} stories so far.`}
-            </p>
-          ) : null}
-          {!reportOpen ? <ShareActions row={current} lang={lang} /> : null}
-          <CaseDialog
-            row={current}
-            open={reportOpen}
-            onOpenChange={setReportOpen}
-            lang={lang}
-            onReplay={replay}
-          />
-        </section>
+        <CaseCard row={current} lang={lang} seen={seen.length} onReplay={replay} />
       ) : null}
     </main>
   );
 }
 
-function CaseDialog({
+function CaseCard({
   row,
-  open,
-  onOpenChange,
   lang,
+  seen,
   onReplay,
 }: {
   row: CaseRow;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   lang: Lang;
+  seen: number;
   onReplay: () => void;
 }) {
   const name = lang === "bn" ? row.nameBn : row.nameEn;
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPortal>
-        <DialogBackdrop />
-        <DialogPopup>
-          <DialogTitle>{name ?? (lang === "bn" ? "এই খবর" : "This report")}</DialogTitle>
-          <DialogDescription>{familyLine(row, lang)}</DialogDescription>
-          <CaseFacts row={row} lang={lang} />
-          <ShareActions row={row} lang={lang} />
-          <div className="pair">
-            <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>
-              {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
-            </Button>
-            <DialogClose className="pair-btn">{lang === "bn" ? "বন্ধ" : "Close"}</DialogClose>
-          </div>
-        </DialogPopup>
-      </DialogPortal>
-    </Dialog>
+    <section>
+      {name ? <h1 className="name">{name}</h1> : null}
+      <p className="lead">{familyLine(row, lang)}</p>
+      <CaseFacts row={row} lang={lang} />
+      <ShareActions row={row} lang={lang} />
+      <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>
+        {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
+      </Button>
+      {row.amountBdt != null ? (
+        <p className="sub">
+          {lang === "bn" ? `আপনি এ পর্যন্ত ${toBnDigits(String(seen))}টি খবর দেখেছেন।` : `You have seen ${seen} stories so far.`}
+        </p>
+      ) : null}
+    </section>
   );
 }
 
