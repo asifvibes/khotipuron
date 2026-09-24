@@ -11,7 +11,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const row = findCase(id);
-  if (!row) return { title: "ক্ষতিপূরণ / Khotipuron" };
+  if (!row) return { title: "ক্ষতিপূরণ" };
   const title = ogTitle(row);
   const description = ogDescription(row);
   const url = publicCaseUrl(row.id);

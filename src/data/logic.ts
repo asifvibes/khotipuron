@@ -18,13 +18,13 @@ export const sceneLabel: Record<SceneType, { bn: string; en: string }> = {
 
 export const kindLabel: Record<AmountKind, { bn: string; en: string }> = {
   demanded: { bn: "দাবি", en: "demanded" },
-  promised: { bn: "প্রতিশ্রুত", en: "promised" },
-  said_handed: { bn: "হস্তান্তর হয়েছে বলে বলা হয়েছে", en: "said to be handed over" },
+  promised: { bn: "দেবে বলেছে", en: "promised" },
+  said_handed: { bn: "দিয়েছে বলে খবর", en: "said handed over" },
   court: { bn: "আদালত", en: "court" },
   government: { bn: "সরকার", en: "government" },
   insurance: { bn: "বিমা", en: "insurance" },
-  employer: { bn: "নিয়োগকর্তা", en: "employer" },
-  none: { bn: "উল্লেখ নেই", en: "none mentioned" },
+  employer: { bn: "মালিক", en: "employer" },
+  none: { bn: "টাকার কথা নেই", en: "no sum" },
 };
 
 export function toBnDigits(value: string): string {
@@ -86,45 +86,44 @@ export function discussedY(row: CaseRow, lang: Lang): string | null {
 export function familyLine(row: CaseRow, lang: Lang): string {
   const y = discussedY(row, lang);
   if (!y) {
-    return lang === "bn"
-      ? "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি।"
-      : "No Khotipuron amount was discussed.";
+    return lang === "bn" ? "টাকার কথা নেই।" : "No money was discussed.";
   }
   const name = lang === "bn" ? row.nameBn : row.nameEn;
   if (lang === "bn") {
     const because = name
-      ? `কারণ ${name}-এর পরিবারের জন্য এই অঙ্ক আলোচিত হয়েছিল।`
-      : "কারণ এই প্রতিবেদনে একটি পরিবারের জন্য এই অঙ্ক আলোচিত হয়েছিল।";
-    return `আপনি এই ধরনের ঘটনায় মারা গেলে, আপনার পরিবার ক্ষতিপূরণ হিসেবে ${y} পেতে পারে, ${because}`;
+      ? `${name}-এর পরিবারের জন্য সংবাদে এই টাকার কথা আছে।`
+      : "এই সংবাদে এক পরিবারের জন্য এই টাকার কথা আছে।";
+    return `এই রকম ঘটনায় মারা গেলে পরিবার পেতে পারে ${y}। ${because}`;
   }
   const because = name
-    ? `because ${name}'s family had this amount discussed.`
-    : "because the family in this report had this amount discussed.";
-  return `If you died in this kind of incident, your family may get ${y} as Khotipuron, ${because}`;
+    ? `The news discussed that sum for ${name}'s family.`
+    : "The news discussed that sum for the family in this report.";
+  return `If you died like this, your family may get ${y} as Khotipuron. ${because}`;
 }
 
 export function shareText(row: CaseRow, lang: Lang): string {
   const scene = sceneLabel[row.scene][lang];
   const y = discussedY(row, lang);
   if (lang === "bn") {
-    const amount = y ? `আলোচিত ক্ষতিপূরণ: ${y}।` : "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি।";
-    return `${scene}। ${amount} খেলে দেখুন।`;
+    const amount = y ? `টাকা: ${y}।` : "টাকার কথা নেই।";
+    return `${scene}। ${amount} ক্ষতিপূরণ খেলুন।`;
   }
-  const amount = y ? `Discussed Khotipuron: ${y}.` : "No Khotipuron amount was discussed.";
+  const amount = y ? `Money: ${y}.` : "No money was discussed.";
   return `${scene}. ${amount} Try Khotipuron.`;
 }
 
 export function ogTitle(row: CaseRow): string {
   const y = discussedY(row, "bn");
   const scene = sceneLabel[row.scene].bn;
-  if (!y) return `${scene} · কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি`;
+  if (!y) return `${scene} · টাকার কথা নেই`;
   return `${scene} · ${y}`;
 }
 
 export function ogDescription(row: CaseRow): string {
   const y = discussedY(row, "bn");
-  if (!y) return "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি। খেলে দেখুন।";
-  return `${sceneLabel[row.scene].bn}। আলোচিত ক্ষতিপূরণ: ${y}। খেলে দেখুন।`;
+  const scene = sceneLabel[row.scene].bn;
+  if (!y) return "টাকার কথা নেই। ক্ষতিপূরণ খেলুন।";
+  return `${scene}। টাকা: ${y}। ক্ষতিপূরণ খেলুন।`;
 }
 
 export function safeText(row: CaseRow, text: string | null): string | null {

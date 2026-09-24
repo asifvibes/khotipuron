@@ -148,11 +148,11 @@ export function Game() {
                   ? "গাছের নিচে বসে ছিলেন।"
                   : "Sitting under a tree."
               : lang === "bn"
-                ? `${sceneLabel[current.scene].bn}। সাধারণ মুহূর্ত এখানে থেমে গেল।`
-                : `${sceneLabel[current.scene].en}. The ordinary moment stopped.`}
+                ? `${sceneLabel[current.scene].bn}। মারা গেলেন।`
+                : `${sceneLabel[current.scene].en}. They died.`}
           </p>
           <Button type="button" variant="outline" className="retro-btn" onClick={skipWait}>
-            {lang === "bn" ? "এগোন" : "Continue"}
+            {lang === "bn" ? "চলুন" : "Next"}
           </Button>
         </section>
       ) : null}
@@ -162,15 +162,15 @@ export function Game() {
           <p className="lead">{familyLine(current, lang)}</p>
           <div className="replay-row">
             <Button type="button" variant="outline" className="retro-btn" onClick={() => setReportOpen(true)}>
-              {lang === "bn" ? "প্রতিবেদন" : "The report"}
+              {lang === "bn" ? "খবর" : "The news"}
             </Button>
             <Button type="button" className="retro-btn" onClick={replay}>
-              {lang === "bn" ? "আরেকটি" : "Another"}
+              {lang === "bn" ? "আরেকটা" : "Another"}
             </Button>
           </div>
           {current.amountBdt != null ? (
             <p className="sub">
-              {lang === "bn" ? `${toBnDigits(String(seen.length))}টি দেখা হয়েছে` : `${seen.length} seen`}
+              {lang === "bn" ? `${toBnDigits(String(seen.length))}টি খবর দেখা হয়েছে` : `${seen.length} stories seen`}
             </p>
           ) : null}
           {!reportOpen ? <ShareActions row={current} lang={lang} /> : null}
@@ -206,13 +206,13 @@ function CaseDialog({
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>{name ?? (lang === "bn" ? "প্রতিবেদন" : "The report")}</DialogTitle>
+          <DialogTitle>{name ?? (lang === "bn" ? "খবর" : "The news")}</DialogTitle>
           <DialogDescription>{familyLine(row, lang)}</DialogDescription>
           <CaseFacts row={row} lang={lang} />
           <ShareActions row={row} lang={lang} />
           <div className="replay-row">
             <Button type="button" className="retro-btn" onClick={onReplay}>
-              {lang === "bn" ? "আরেকটি" : "Another"}
+              {lang === "bn" ? "আরেকটা" : "Another"}
             </Button>
             <DialogClose>{lang === "bn" ? "বন্ধ" : "Close"}</DialogClose>
           </div>
@@ -226,10 +226,10 @@ function EmptyPool({ lang }: { lang: Lang }) {
   return (
     <section>
       <p className="name">
-        {lang === "bn" ? "এই ফাইলের সব ঘটনা আপনি দেখে ফেলেছেন।" : "You have seen every case in this file."}
+        {lang === "bn" ? "সব খবর দেখা হয়ে গেছে।" : "You have seen every story."}
       </p>
       <p className="lead">
-        {lang === "bn" ? "পুরনো ঘটনা আবার দেখানো হচ্ছে না।" : "Seen cases are not shown again."}
+        {lang === "bn" ? "দেখা খবর আর আসবে না।" : "Seen stories do not come back."}
       </p>
     </section>
   );

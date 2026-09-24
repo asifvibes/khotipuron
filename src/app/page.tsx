@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ক্ষতিপূরণ",
     description:
-      "একটা সাধারণ মুহূর্ত, তারপর একটি মৃত্যু, তারপর একটি সংবাদে ক্ষতিপূরণ নিয়ে যা আলোচিত হয়েছে।",
+      "হাঁটছেন। তারপর মৃত্যু। তারপর সংবাদে কত টাকার কথা।",
     url: "https://khotipuron.com",
     siteName: "ক্ষতিপূরণ",
     locale: "bn_BD",

@@ -59,11 +59,11 @@ export function TopBar({
           {lang === "bn" ? "English" : "বাংলা"}
         </Button>
         <Button type="button" variant="outline" className="retro-btn settings-btn" onClick={onTheme}>
-          {theme === "dark" ? (lang === "bn" ? "আলো" : "Light") : lang === "bn" ? "গাঢ়" : "Dark"}
+          {theme === "dark" ? (lang === "bn" ? "আলো" : "Light") : lang === "bn" ? "কালো" : "Dark"}
         </Button>
         {nav === "game" ? (
           <Link className="text-link" href="/method">
-            {lang === "bn" ? "পদ্ধতি" : "Method"}
+            {lang === "bn" ? "টাকার কথা" : "The money"}
           </Link>
         ) : (
           <Link className="text-link" href="/">

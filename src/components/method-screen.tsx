@@ -22,25 +22,26 @@ export function MethodScreen() {
   const filled = counts.filter((row) => row.total > 0);
   const empty = counts.filter((row) => row.total === 0);
   const bn = lang === "bn";
+  const total = bn ? toBnDigits(String(cases.length)) : String(cases.length);
 
   return (
     <main className="shell">
       <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={toggleTheme} nav="method" />
-      <h1 className="name">{bn ? "অঙ্কটি সংবাদে যা আলোচিত হয়েছে" : "The figure is what a news article discussed"}</h1>
+      <h1 className="name">{bn ? "টাকাটা খবর থেকে" : "The money is from the news"}</h1>
+      <p className="lead">{bn ? "এটা খবরে যা লেখা।" : "This is what the news wrote."}</p>
+      <p className="lead">{bn ? "উকিলের পরামর্শ নয়।" : "Not a lawyer's advice."}</p>
+      <p className="lead">{bn ? "কত টাকা পাবেন, তা এখানে বলা নেই।" : "Not a forecast."}</p>
+      <p className="lead">{bn ? "টাকা পেয়েছেন কি না, তার প্রমাণ নয়।" : "Not proof the money was received."}</p>
+      <p className="lead">{bn ? "এই টাকা মামলা শেষ করে না।" : "This money does not end the case."}</p>
       <p className="lead">
         {bn
-          ? "এই অঙ্ক একটি সংবাদ প্রতিবেদনে যা আলোচনা হয়েছে, সেটা। এটা আইনি পরামর্শ নয়, পূর্বাভাস নয়, এবং টাকা পাওয়া গেছে তার প্রমাণ নয়।"
-          : "The figure is what a news article discussed, not legal advice, not a forecast, and not proof the money was received."}
+          ? "বারিধারার খবরে অভিযুক্ত কিশোরের নাম এখানে নেই।"
+          : "The Baridhara report's accused teenager is not named here."}
       </p>
+      <p className="lead">{bn ? `এই ফাইলে ${total}টি আলাদা মৃত্যু।` : `This file has ${total} separate deaths.`}</p>
+      <p className="lead">{bn ? "এক মৃত্যু দুবার নেই।" : "The same death is not listed twice."}</p>
       <p className="lead">
-        {bn
-          ? "ব্যক্তিগত একটি অঙ্ক ফৌজদারি মামলার ফয়সালা নয়। বারিধারার প্রতিবেদনে অভিযুক্ত কিশোরকে এখানে দেখানো হয় না।"
-          : "A private sum does not decide a criminal case. The accused teenager in the Baridhara reports is not shown."}
-      </p>
-      <p className="lead">
-        {bn
-          ? `এই ফাইলে ${toBnDigits(String(cases.length))}টি আলাদা মৃত্যু। একই মৃত্যু দুইবার নেই। খেলোয়াড় যে ঘটনা দেখেছেন, সেটি আবার আসে না।`
-          : `This file has ${cases.length} distinct deaths. The same death is not entered twice. A case the player has seen does not return.`}
+        {bn ? "যে খবর দেখা হয়েছে, সেটা আর আসে না।" : "A story you have seen does not come back."}
       </p>
 
       <h2 className="section">{bn ? "দৃশ্য" : "Scenes"}</h2>
@@ -50,31 +51,36 @@ export function MethodScreen() {
             <strong>{sceneLabel[row.scene][lang]}</strong>
             <span>
               {bn
-                ? ` ${toBnDigits(String(row.total))}টি, অঙ্ক আছে ${toBnDigits(String(row.withAmount))}টিতে, নেই ${toBnDigits(String(row.none))}টিতে`
-                : ` ${row.total} cases, ${row.withAmount} with a discussed amount, ${row.none} with none`}
+                ? ` ${toBnDigits(String(row.total))}টি। টাকার কথা আছে ${toBnDigits(String(row.withAmount))}টিতে। নেই ${toBnDigits(String(row.none))}টিতে।`
+                : ` ${row.total}. A sum in ${row.withAmount}. No sum in ${row.none}.`}
             </span>
           </li>
         ))}
       </ul>
-      <p className="lead">
-        {empty.length === 0
-          ? bn
-            ? "খালি দৃশ্য নেই। সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল, এবং অবহেলা এই ফাইলে আছে।"
-            : "No scene type in this file is empty. Road, open drain, workplace, fire, river, rail, and negligence are all present."
-          : bn
-            ? `যে দৃশ্যের কোনো প্রতিবেদন নেই, সেটি খেলায় আসে না: ${empty.map((row) => sceneLabel[row.scene].bn).join(", ")}।`
-            : `Scenes with no coded article are not drawn: ${empty.map((row) => sceneLabel[row.scene].en).join(", ")}.`}
-      </p>
+      {empty.length === 0 ? (
+        <>
+          <p className="lead">{bn ? "কোনো দৃশ্য খালি নেই।" : "No scene is empty."}</p>
+          <p className="lead">
+            {bn
+              ? "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল, অবহেলা সব আছে।"
+              : "Road, open drain, workplace, fire, river, rail, and negligence are all here."}
+          </p>
+        </>
+      ) : (
+        <p className="lead">
+          {bn
+            ? `যে দৃশ্যে খবর নেই, সেটা খেলায় আসে না: ${empty.map((row) => sceneLabel[row.scene].bn).join(", ")}।`
+            : `A scene with no story is not drawn: ${empty.map((row) => sceneLabel[row.scene].en).join(", ")}.`}
+        </p>
+      )}
 
-      <h2 className="section">{bn ? "অঙ্কের ধরন" : "Kinds of amount"}</h2>
+      <h2 className="section">{bn ? "টাকার ধরন" : "Kinds of money"}</h2>
       <ul className="counts">
         {kinds.map((kind) => (
           <li key={kind}>{kindLabel[kind][lang]}</li>
         ))}
       </ul>
-      <p className="lead">
-        {bn ? "দুই ধরনের টাকা যোগ করে একটি অঙ্ক বানানো হয় না।" : "Two kinds of money are not added into one figure."}
-      </p>
+      <p className="lead">{bn ? "দুই রকম টাকা যোগ করা হয় না।" : "Two kinds of money are not added together."}</p>
     </main>
   );
 }

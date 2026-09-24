@@ -27,13 +27,13 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
       {quote ? <p className="quote">{quote}</p> : null}
       {row.also && row.amountBdt != null ? (
         <p className="also">
-          {lang === "bn" ? "আলাদা করে, একই প্রতিবেদনে: " : "Separate, in the same report: "}
+          {lang === "bn" ? "একই খবরে আলাদা টাকা: " : "Same story, a separate sum: "}
           {formatTaka(row.also.amountBdt, lang)} · {kindLabel[row.also.amountKind][lang]}
         </p>
       ) : null}
       {year ? (
         <p className="sub">
-          {lang === "bn" ? `প্রতিবেদনের বছর ${toBnDigits(year)}` : `Article year ${year}`}
+          {lang === "bn" ? `খবরের বছর ${toBnDigits(year)}` : `Reported in ${year}`}
         </p>
       ) : null}
       {note ? <p className="note">{note}</p> : null}
@@ -41,15 +41,14 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
         <p className="sub">
           {lang === "bn"
             ? "একই ঘটনায় আরও মানুষ মারা গেছেন।"
-            : "The article says other people died in the same incident."}
+            : "Other people died in the same incident."}
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />
-      <p className="note">
-        {lang === "bn"
-          ? "এখানে যা আছে, তা প্রতিবেদনে যা আলোচিত হয়েছে। আইনি পরামর্শ নয়, পূর্বাভাস নয়, টাকা পাওয়ার প্রমাণ নয়।"
-          : "What is here is what the article discussed. Not legal advice, not a forecast, and not proof the money was received."}
-      </p>
+      <p className="note">{lang === "bn" ? "এটা খবরে যা লেখা।" : "This is what the news wrote."}</p>
+      <p className="note">{lang === "bn" ? "উকিলের পরামর্শ নয়।" : "Not a lawyer's advice."}</p>
+      <p className="note">{lang === "bn" ? "কত টাকা পাবেন, তা এখানে বলা নেই।" : "Not a forecast."}</p>
+      <p className="note">{lang === "bn" ? "টাকা পেয়েছেন কি না, তার প্রমাণ নয়।" : "Not proof the money was received."}</p>
       <p className="links">
         <a href={row.url} target="_blank" rel="noreferrer">
           {row.outlet}

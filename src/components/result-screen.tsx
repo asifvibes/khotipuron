@@ -21,7 +21,7 @@ export function ResultScreen({ row }: { row: CaseRow }) {
       <CaseFacts row={row} lang={lang} />
       <ShareActions row={row} lang={lang} />
       <Link className="retro-btn share-link play-link" href={`/?from=${row.id}`}>
-        {lang === "bn" ? "খেলা শুরু, নতুন একটি ঘটনা" : "Play and draw a new case"}
+        {lang === "bn" ? "আরেকটা খেলুন" : "Play another"}
       </Link>
     </main>
   );

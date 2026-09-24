@@ -14,7 +14,7 @@ export default async function CaseCardImage({ params }: { params: Promise<{ id: 
   const row = findCase(id);
   const font = await readFile(join(process.cwd(), "src/fonts/NotoSansBengali-Bold.ttf"));
   const scene = row ? sceneLabel[row.scene].bn : "ক্ষতিপূরণ";
-  const amount = row ? (discussedY(row, "bn") ?? "কোনো ক্ষতিপূরণের অঙ্ক আলোচিত হয়নি") : "ক্ষতিপূরণ";
+  const amount = row ? (discussedY(row, "bn") ?? "টাকার কথা নেই") : "ক্ষতিপূরণ";
   const amountSize = amount.length > 28 ? 46 : 64;
 
   return new ImageResponse(
@@ -53,7 +53,7 @@ export default async function CaseCardImage({ params }: { params: Promise<{ id: 
           >
             {amount}
           </div>
-          <div style={{ display: "flex", fontSize: 32, marginTop: 36 }}>খেলে দেখুন</div>
+          <div style={{ display: "flex", fontSize: 32, marginTop: 36 }}>ক্ষতিপূরণ খেলুন</div>
         </div>
       </div>
     ),
