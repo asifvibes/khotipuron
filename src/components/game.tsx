@@ -130,11 +130,22 @@ export function Game() {
         <p className="lead">{phase === "accident" ? deathLine(current.scene, lang) : momentLine(current, idle, lang)}</p>
       ) : null}
 
+      {current && (phase === "idle" || phase === "count") ? (
+        <p className="lead">{readLine(cases.length, seen.length, lang)}</p>
+      ) : null}
+
       {current && phase === "card" ? (
         <CaseCard row={current} lang={lang} seen={seen.length} onReplay={replay} />
       ) : null}
     </main>
   );
+}
+
+function readLine(total: number, read: number, lang: Lang): string {
+  if (lang === "bn") {
+    return `আমাদের কালেক্ট করা মোট ${toBnDigits(String(total))}টি খবরের মধ্যে আপনি পড়েছেন ${toBnDigits(String(read))}টি। কে জানে, আমাদের আশেপাশেই হয়তো লুকিয়ে আছে আরও কত অজানা খবর!`;
+  }
+  return `Of the ${total} stories we have collected, you have read ${read}, and who knows how many unknown stories may still be hidden around us.`;
 }
 
 function CaseCard({
