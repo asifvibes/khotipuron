@@ -1,6 +1,9 @@
 "use client";
 
 import { TopBar, usePrefs } from "@/components/prefs";
+import { cases } from "@/data/cases";
+import { sceneCounts, sceneLabel, toBnDigits } from "@/data/logic";
+import type { Lang } from "@/data/types";
 
 const FACEBOOK = "https://www.facebook.com/khotipuronUpdate/";
 
@@ -11,17 +14,7 @@ const BN = {
   receive: "কত টাকা পাবেন, তা এখানে বলা হয়নি।",
   proof: "টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।",
   case: "এই টাকা মামলা শেষ করে না।",
-  total: "এই ওয়েবসাইটে এখন ৭৭টি আলাদা মৃত্যুর ঘটনার কথা বলা আছে। সামনে আরও যোগ করা হবে।",
   summary: "সামারিঃ",
-  scenes: [
-    "সড়ক ৪৭টি ঘটনা আছে। ৬টিতে টাকার এমাউন্ট লেখা আছে। ৪১টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "খোলা ড্রেন- ৪টি ঘটনা আছে। ০টিতে টাকার এমাউন্ট লেখা আছে। ৪টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "কর্মস্থল- ৬টি ঘটনা আছে। ২টিতে টাকার এমাউন্ট লেখা আছে। ৪টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "আগুন- ২টি ঘটনা আছে। ০টিতে টাকার এমাউন্ট লেখা আছে। ২টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "নদী- ১৩টি ঘটনা আছে। ৮টিতে টাকার এমাউন্ট লেখা আছে। ৫টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "রেল- ২টি ঘটনা আছে। ০টিতে টাকার এমাউন্ট লেখা আছে। ২টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-    "অবহেলা- ৩টি ঘটনা আছে। ১টিতে টাকার এমাউন্ট লেখা আছে। ২টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।",
-  ],
   sections:
     "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল এবং অবহেলা এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।",
   kindsLabel: "টাকার ধরনঃ",
@@ -45,17 +38,7 @@ const EN = {
   receive: "This does not say how much you would receive.",
   proof: "This is not proof the money was received.",
   case: "This money does not end the case.",
-  total: "This website now describes 77 separate deaths. More will be added.",
   summary: "Summary:",
-  scenes: [
-    "Road. There are 47 incidents. An amount is written in 6. The article does not mention a compensation amount in 41.",
-    "Open drain. There are 4 incidents. An amount is written in 0. The article does not mention a compensation amount in 4.",
-    "Workplace. There are 6 incidents. An amount is written in 2. The article does not mention a compensation amount in 4.",
-    "Fire. There are 2 incidents. An amount is written in 0. The article does not mention a compensation amount in 2.",
-    "River. There are 13 incidents. An amount is written in 8. The article does not mention a compensation amount in 5.",
-    "Rail. There are 2 incidents. An amount is written in 0. The article does not mention a compensation amount in 2.",
-    "Negligence. There are 3 incidents. An amount is written in 1. The article does not mention a compensation amount in 2.",
-  ],
   sections:
     "Road, open drain, workplace, fire, river, rail, and negligence are the sections added for now. More may be added later.",
   kindsLabel: "Kinds of money:",
@@ -72,9 +55,33 @@ const EN = {
   feedback: "If you have a suggestion or feedback about this website, tell us on our Facebook page:",
 };
 
+function totalLine(lang: Lang): string {
+  const total = cases.length;
+  if (lang === "bn") {
+    return `এই ওয়েবসাইটে এখন ${toBnDigits(String(total))}টি আলাদা মৃত্যুর ঘটনার কথা বলা আছে। সামনে আরও যোগ করা হবে।`;
+  }
+  return `This website now describes ${total} separate deaths. More will be added.`;
+}
+
+function sceneLines(lang: Lang): string[] {
+  return sceneCounts(cases).map((row) => {
+    if (lang === "bn") {
+      const label = sceneLabel[row.scene].bn;
+      const total = toBnDigits(String(row.total));
+      const amount = toBnDigits(String(row.withAmount));
+      const none = toBnDigits(String(row.none));
+      const head = row.scene === "road" ? `${label} ${total}টি` : `${label}- ${total}টি`;
+      return `${head} ঘটনা আছে। ${amount}টিতে টাকার এমাউন্ট লেখা আছে। ${none}টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।`;
+    }
+    const label = sceneLabel[row.scene].en;
+    return `${label}. There are ${row.total} incidents. An amount is written in ${row.withAmount}. The article does not mention a compensation amount in ${row.none}.`;
+  });
+}
+
 export function MethodScreen() {
   const { lang, theme, toggleLang, chooseTheme } = usePrefs();
   const copy = lang === "bn" ? BN : EN;
+  const scenes = sceneLines(lang);
 
   return (
     <main className="shell">
@@ -84,9 +91,9 @@ export function MethodScreen() {
       <p className="lead">{copy.receive}</p>
       <p className="lead">{copy.proof}</p>
       <p className="lead">{copy.case}</p>
-      <p className="lead">{copy.total}</p>
+      <p className="lead">{totalLine(lang)}</p>
       <h2 className="section">{copy.summary}</h2>
-      {copy.scenes.map((line) => (
+      {scenes.map((line) => (
         <p className="lead" key={line}>
           {line}
         </p>

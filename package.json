@@ -7,7 +7,9 @@
     "build": "opennextjs-cloudflare build",
     "start": "next start -H 0.0.0.0 -p 47291",
     "lint": "eslint",
-    "check-cases": "tsx scripts/check-cases.ts"
+    "check-cases": "tsx scripts/check-cases.ts",
+    "check-crawl": "tsx scripts/extract-news.test.ts",
+    "crawl": "tsx scripts/crawl-news.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

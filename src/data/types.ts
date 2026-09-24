@@ -54,6 +54,9 @@ export type CaseRow = {
   sex: Sex;
   doingEn: string | null;
   doingBn: string | null;
+  /** Countdown act when this case is not in the hand-written list. No name, no amount. */
+  actEn?: string;
+  actBn?: string;
   amountBdt: number | null;
   amountKind: AmountKind;
   /** True when the article says the amount was paid or handed over. */

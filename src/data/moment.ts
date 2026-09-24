@@ -316,7 +316,7 @@ const ACT: Record<string, { bn: string; en: string }> = {
 };
 
 export function momentLine(row: CaseRow, _idle: Idle, lang: Lang): string {
-  const act = ACT[row.id];
+  const act = ACT[row.id] ?? (row.actBn && row.actEn ? { bn: row.actBn, en: row.actEn } : null);
   if (!act) throw new Error(`missing countdown act for ${row.id}`);
   const date = row.incidentDate ? countdownDate(row.incidentDate, lang) : "";
   if (lang === "bn") {
