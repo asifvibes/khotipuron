@@ -39,19 +39,6 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />
-      <hr className="source-break" />
-      <p className="lead">{bn ? "এখানে যা লেখা, তা ওই নিউজ আর্টিকেল থেকে নেওয়া।" : "What is written here is taken from that news article."}</p>
-      <p className="lead">{bn ? "এটি উকিলের পরামর্শ নয়।" : "This is not a lawyer's advice."}</p>
-      <p className="lead">
-        {bn
-          ? "আপনি এভাবে মারা গেলে কত টাকা পাবেন, তা এখানে বলা হয়নি।"
-          : "This does not say how much you would receive if you died this way."}
-      </p>
-      <p className="lead">
-        {bn
-          ? "ভিক্টিমের পরিবার টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।"
-          : "This is not proof the victim's family received the money."}
-      </p>
       {sources.map((source) => (
         <p className="source-line" key={source.url}>
           {bn ? "নিউজ সোর্সঃ " : "News source: "}
