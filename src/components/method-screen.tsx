@@ -17,7 +17,7 @@ const kinds: AmountKind[] = [
 ];
 
 export function MethodScreen() {
-  const { lang, theme, toggleLang, toggleTheme } = usePrefs();
+  const { lang, theme, toggleLang, chooseTheme } = usePrefs();
   const counts = sceneCounts(cases);
   const filled = counts.filter((row) => row.total > 0);
   const empty = counts.filter((row) => row.total === 0);
@@ -26,7 +26,7 @@ export function MethodScreen() {
 
   return (
     <main className="shell">
-      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={toggleTheme} nav="method" />
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="method" />
       <h1 className="name">{bn ? "টাকাটা খবর থেকে" : "The money is from the news"}</h1>
       <p className="lead">{bn ? "এটা খবরে যা লেখা।" : "This is what the news wrote."}</p>
       <p className="lead">{bn ? "উকিলের পরামর্শ নয়।" : "Not a lawyer's advice."}</p>

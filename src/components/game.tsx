@@ -19,11 +19,10 @@ import { cases } from "@/data/cases";
 import { familyLine, pickUnseen, sceneLabel, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
-type Phase = "loading" | "idle" | "death" | "card" | "empty";
+type Phase = "loading" | "idle" | "count" | "card" | "empty";
 type Idle = "walk" | "sit";
 
 const IDLE_MS = 6500;
-const DEATH_MS = 3200;
 
 function readSeen(): string[] {
   try {
@@ -36,8 +35,9 @@ function readSeen(): string[] {
 }
 
 export function Game() {
-  const { lang, theme, toggleLang, toggleTheme } = usePrefs();
+  const { lang, theme, toggleLang, chooseTheme } = usePrefs();
   const [phase, setPhase] = useState<Phase>("loading");
+  const [count, setCount] = useState(5);
   const [seen, setSeen] = useState<string[]>([]);
   const [current, setCurrent] = useState<CaseRow | null>(null);
   const [idle, setIdle] = useState<Idle>("walk");
@@ -71,23 +71,31 @@ export function Game() {
 
   useEffect(() => {
     if (phase !== "idle") return;
-    const timer = window.setTimeout(() => setPhase("death"), IDLE_MS);
+    const timer = window.setTimeout(() => {
+      setCount(5);
+      setPhase("count");
+    }, IDLE_MS);
     return () => window.clearTimeout(timer);
   }, [phase, current?.id]);
 
   useEffect(() => {
-    if (phase !== "death" || !current) return;
+    if (phase !== "count" || !current) return;
+    const id = current.id;
     const timer = window.setTimeout(() => {
-      setSeen((prev) => {
-        if (prev.includes(current.id)) return prev;
-        const next = [...prev, current.id];
-        localStorage.setItem(SEEN_KEY, JSON.stringify(next));
-        return next;
-      });
-      setPhase("card");
-    }, DEATH_MS);
+      if (count <= 1) {
+        setSeen((prev) => {
+          if (prev.includes(id)) return prev;
+          const next = [...prev, id];
+          localStorage.setItem(SEEN_KEY, JSON.stringify(next));
+          return next;
+        });
+        setPhase("card");
+        return;
+      }
+      setCount((value) => value - 1);
+    }, 1000);
     return () => window.clearTimeout(timer);
-  }, [phase, current]);
+  }, [phase, count, current]);
 
   useEffect(() => {
     if (phase !== "card") {
@@ -112,60 +120,62 @@ export function Game() {
     setPhase("idle");
   }
 
-  function skipWait() {
-    if (phase === "idle") setPhase("death");
-    if (phase === "death" && current) {
-      setSeen((prev) => {
-        if (prev.includes(current.id)) return prev;
-        const next = [...prev, current.id];
-        localStorage.setItem(SEEN_KEY, JSON.stringify(next));
-        return next;
-      });
-      setPhase("card");
-    }
+  function beginCount() {
+    if (phase !== "idle") return;
+    setCount(5);
+    setPhase("count");
   }
 
   return (
     <main className="shell">
-      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={toggleTheme} nav="game" />
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" />
 
       {phase === "loading" ? <p className="lead">…</p> : null}
       {phase === "empty" ? <EmptyPool lang={lang} /> : null}
 
       {current && phase !== "loading" && phase !== "empty" ? (
-        <Scene idle={idle} phase={phase === "idle" ? "idle" : "death"} scene={current.scene} />
+        <Scene
+          idle={idle}
+          phase={phase === "idle" || (phase === "count" && count > 2) ? "idle" : "death"}
+          scene={current.scene}
+          rush={phase === "count"}
+          hit={phase === "count" && count === 1}
+          countLabel={phase === "count" ? (lang === "bn" ? toBnDigits(String(count)) : String(count)) : null}
+        />
       ) : null}
 
-      {current && (phase === "idle" || phase === "death") ? (
+      {current && (phase === "idle" || phase === "count") ? (
         <section>
           <p className="lead">
-            {phase === "idle"
-              ? idle === "walk"
+            {phase === "count" && count <= 2
+              ? lang === "bn"
+                ? `${sceneLabel[current.scene].bn}। মারা গেলেন।`
+                : `${sceneLabel[current.scene].en}. They died.`
+              : idle === "walk"
                 ? lang === "bn"
                   ? "হাঁটছিলেন।"
                   : "Walking."
                 : lang === "bn"
                   ? "গাছের নিচে বসে ছিলেন।"
-                  : "Sitting under a tree."
-              : lang === "bn"
-                ? `${sceneLabel[current.scene].bn}। মারা গেলেন।`
-                : `${sceneLabel[current.scene].en}. They died.`}
+                  : "Sitting under a tree."}
           </p>
-          <Button type="button" variant="outline" className="retro-btn" onClick={skipWait}>
-            {lang === "bn" ? "চলুন" : "Next"}
-          </Button>
+          {phase === "idle" ? (
+            <Button type="button" variant="outline" className="retro-btn pair-btn" onClick={beginCount}>
+              {lang === "bn" ? "চলুন" : "Go"}
+            </Button>
+          ) : null}
         </section>
       ) : null}
 
       {current && phase === "card" ? (
         <section>
           <p className="lead">{familyLine(current, lang)}</p>
-          <div className="replay-row">
-            <Button type="button" variant="outline" className="retro-btn" onClick={() => setReportOpen(true)}>
+          <div className="pair">
+            <Button type="button" variant="outline" className="retro-btn pair-btn" onClick={() => setReportOpen(true)}>
               {lang === "bn" ? "খবর" : "The news"}
             </Button>
-            <Button type="button" className="retro-btn" onClick={replay}>
-              {lang === "bn" ? "আরেকটা" : "Another"}
+            <Button type="button" className="retro-btn pair-btn" onClick={replay}>
+              {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
             </Button>
           </div>
           {current.amountBdt != null ? (
@@ -210,11 +220,11 @@ function CaseDialog({
           <DialogDescription>{familyLine(row, lang)}</DialogDescription>
           <CaseFacts row={row} lang={lang} />
           <ShareActions row={row} lang={lang} />
-          <div className="replay-row">
-            <Button type="button" className="retro-btn" onClick={onReplay}>
-              {lang === "bn" ? "আরেকটা" : "Another"}
+          <div className="pair">
+            <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>
+              {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
             </Button>
-            <DialogClose>{lang === "bn" ? "বন্ধ" : "Close"}</DialogClose>
+            <DialogClose className="pair-btn">{lang === "bn" ? "বন্ধ" : "Close"}</DialogClose>
           </div>
         </DialogPopup>
       </DialogPortal>

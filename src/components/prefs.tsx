@@ -28,14 +28,13 @@ export function usePrefs() {
     document.documentElement.lang = next === "en" ? "en" : "bn";
   }
 
-  function toggleTheme() {
-    const next: Theme = theme === "dark" ? "light" : "dark";
+  function chooseTheme(next: Theme) {
     setTheme(next);
     localStorage.setItem(THEME_KEY, next);
     document.documentElement.dataset.theme = next;
   }
 
-  return { lang, theme, toggleLang, toggleTheme };
+  return { lang, theme, toggleLang, chooseTheme };
 }
 
 export function TopBar({
@@ -48,29 +47,76 @@ export function TopBar({
   lang: Lang;
   theme: Theme;
   onLang: () => void;
-  onTheme: () => void;
+  onTheme: (next: Theme) => void;
   nav: "game" | "method";
 }) {
   return (
     <header className="top">
-      <p className="mark">{lang === "bn" ? "ক্ষতিপূরণ" : "Khotipuron"}</p>
+      <Link href="/" className="mark">
+        {lang === "bn" ? "ক্ষতিপূরণ" : "Khotipuron"}
+      </Link>
       <div className="controls">
         <Button type="button" variant="outline" className="retro-btn settings-btn" onClick={onLang}>
           {lang === "bn" ? "English" : "বাংলা"}
         </Button>
-        <Button type="button" variant="outline" className="retro-btn settings-btn" onClick={onTheme}>
-          {theme === "dark" ? (lang === "bn" ? "আলো" : "Light") : lang === "bn" ? "কালো" : "Dark"}
-        </Button>
-        {nav === "game" ? (
-          <Link className="text-link" href="/method">
-            {lang === "bn" ? "টাকার কথা" : "The money"}
-          </Link>
-        ) : (
-          <Link className="text-link" href="/">
-            {lang === "bn" ? "খেলা" : "Play"}
-          </Link>
-        )}
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label={lang === "bn" ? "আলো" : "Light"}
+          aria-pressed={theme === "light"}
+          onClick={() => onTheme("light")}
+        >
+          <SunIcon />
+        </button>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label={lang === "bn" ? "কালো" : "Dark"}
+          aria-pressed={theme === "dark"}
+          onClick={() => onTheme("dark")}
+        >
+          <MoonIcon />
+        </button>
+        <Link
+          href="/method"
+          className="icon-btn"
+          aria-label={lang === "bn" ? "টাকার কথা" : "The money"}
+          aria-current={nav === "method" ? "page" : undefined}
+        >
+          <InfoIcon />
+        </Link>
       </div>
     </header>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.5" fill="currentColor" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"
+      />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M15.5 3.2A8.2 8.2 0 1 0 20.8 14 6.6 6.6 0 0 1 15.5 3.2z" />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path fill="currentColor" d="M11 10.5h2V17h-2zM11 7h2v2h-2z" />
+    </svg>
   );
 }
