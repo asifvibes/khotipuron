@@ -446,6 +446,15 @@ html[data-theme="light"] {
   line-height: 1.55;
 }
 
+.death-line {
+  margin: 0.85rem 0 0.2rem;
+  color: #e10600;
+  font-size: 2.35rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
 .sub,
 .span,
 .scene-tag span {

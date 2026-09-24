@@ -15,7 +15,7 @@ type Phase = "loading" | "idle" | "count" | "accident" | "card" | "empty";
 type Idle = "walk" | "sit";
 
 const IDLE_MS = 2200;
-const ACCIDENT_MS = 1800;
+const ACCIDENT_MS = 2500;
 
 function readSeen(): string[] {
   try {
@@ -126,18 +126,13 @@ export function Game() {
         />
       ) : null}
 
-      {current && (phase === "idle" || phase === "count" || phase === "accident") ? (
-        <p className="lead">{phase === "accident" ? deathLine(current.scene, lang) : momentLine(current, idle, lang)}</p>
+      {current && (phase === "idle" || phase === "count") ? (
+        <p className="lead">{momentLine(current, idle, lang)}</p>
       ) : null}
+      {current && phase === "accident" ? <p className="death-line">{deathLine(current.scene, lang)}</p> : null}
 
       {current && phase === "card" ? (
-        <CaseCard
-          row={current}
-          lang={lang}
-          seen={seen.length}
-          read={new Set(seen).add(current.id).size}
-          onReplay={replay}
-        />
+        <CaseCard row={current} lang={lang} read={new Set(seen).add(current.id).size} onReplay={replay} />
       ) : null}
     </main>
   );
@@ -146,13 +141,11 @@ export function Game() {
 function CaseCard({
   row,
   lang,
-  seen,
   read,
   onReplay,
 }: {
   row: CaseRow;
   lang: Lang;
-  seen: number;
   read: number;
   onReplay: () => void;
 }) {
@@ -163,11 +156,6 @@ function CaseCard({
       <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>
         {lang === "bn" ? "আরেকটি দেখুন" : "See another"}
       </Button>
-      {row.amountBdt != null ? (
-        <p className="sub">
-          {lang === "bn" ? `আপনি এ পর্যন্ত ${toBnDigits(String(seen))}টি খবর দেখেছেন।` : `You have seen ${seen} stories so far.`}
-        </p>
-      ) : null}
       <p className="lead">{collectedLine(cases.length, read, lang)}</p>
     </section>
   );
