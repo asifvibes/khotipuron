@@ -3,11 +3,6 @@ import { countdownDate } from "@/data/logic";
 
 type Idle = "walk" | "sit";
 
-const SIT_BN = "আপনি যেমন করে প্রায়ই গাছের নিচে বসে থাকেন, তেমনি করেই";
-const WALK_BN = "আপনি যেমন প্রায়ই রাস্তা পার হন, তেমনি ভাবে";
-const SIT_EN = "Just as you often sit under a tree,";
-const WALK_EN = "Just as you often cross the road,";
-
 /** The act the article states. No name, no amount, no invented rest. */
 const ACT: Record<string, { bn: string; en: string }> = {
   "khalid-rahman-kurigram": {
@@ -276,15 +271,12 @@ const ACT: Record<string, { bn: string; en: string }> = {
   },
 };
 
-export function momentLine(row: CaseRow, idle: Idle, lang: Lang): string {
+export function momentLine(row: CaseRow, _idle: Idle, lang: Lang): string {
   const act = ACT[row.id];
   if (!act) throw new Error(`missing countdown act for ${row.id}`);
-  const you = lang === "bn" ? (idle === "sit" ? SIT_BN : WALK_BN) : idle === "sit" ? SIT_EN : WALK_EN;
   const date = row.incidentDate ? countdownDate(row.incidentDate, lang) : "";
   if (lang === "bn") {
-    const when = date ? `${date} একজন মানুষ ${act.bn}` : `একজন মানুষ ${act.bn}`;
-    return `${you} ${when}।`;
+    return date ? `${date} একজন মানুষ ${act.bn}।` : `একজন মানুষ ${act.bn}।`;
   }
-  const when = date ? `${date}, a person ${act.en}` : `a person ${act.en}`;
-  return `${you} ${when}.`;
+  return date ? `${date}, a person ${act.en}.` : `A person ${act.en}.`;
 }

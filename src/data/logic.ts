@@ -104,7 +104,7 @@ export function countdownDate(iso: string, lang: Lang): string {
   if (lang === "bn") {
     return `${toBnDigits(year)} সালের ${MONTHS_BN[monthIndex]} মাসের ${toBnDigits(String(Number(day)))} তারিখে`;
   }
-  return `on ${Number(day)} ${MONTHS_EN[monthIndex]} ${year}`;
+    return `On ${Number(day)} ${MONTHS_EN[monthIndex]} ${year}`;
 }
 
 export function dateLine(row: CaseRow, lang: Lang): string {
