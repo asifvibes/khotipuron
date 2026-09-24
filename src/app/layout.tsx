@@ -9,8 +9,10 @@ const bengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: "সাধারণ কাজ",
-  description: "একটা সাধারণ মুহূর্ত, তারপর একটি দুর্ঘটনা, তারপর একটি সংবাদে যা আলোচিত হয়েছে।",
+  metadataBase: new URL("https://khotipuron.com"),
+  title: "ক্ষতিপূরণ / Khotipuron",
+  description:
+    "একটা সাধারণ মুহূর্ত, তারপর একটি মৃত্যু, তারপর একটি সংবাদে ক্ষতিপূরণ নিয়ে যা আলোচিত হয়েছে।",
 };
 
 export default function RootLayout({

@@ -143,10 +143,21 @@
   margin-bottom: 0.75rem;
 }
 
+.brand {
+  line-height: 1.05;
+}
+
 .mark {
   margin: 0;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.mark-latin {
+  margin: 0.15rem 0 0;
+  color: #b7b09a;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
 }
 
 .controls {
@@ -452,4 +463,68 @@
   to {
     transform: rotate(78deg);
   }
+}
+
+.popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgb(0 0 0 / 72%);
+}
+
+.popup {
+  position: fixed;
+  z-index: 50;
+  top: 8dvh;
+  left: 50%;
+  width: min(28rem, calc(100vw - 1.25rem));
+  max-height: 84dvh;
+  overflow: auto;
+  transform: translateX(-50%);
+  border: 3px solid #efe6c9;
+  background: #12160f;
+  padding: 1rem 1rem 1.25rem;
+}
+
+.share-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.9rem 0;
+}
+
+.share-row .retro-btn {
+  width: 100%;
+}
+
+.share-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-decoration: none;
+}
+
+.play-link {
+  margin: 0.2rem 0 1.5rem;
+}
+
+.copy-fallback {
+  width: 100%;
+  border: 2px solid #efe6c9;
+  background: transparent;
+  color: #efe6c9;
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.portrait {
+  margin: 0.7rem 0;
+}
+
+.portrait img {
+  width: 7.5rem;
+  height: 7.5rem;
+  object-fit: cover;
+  border: 3px solid #efe6c9;
 }

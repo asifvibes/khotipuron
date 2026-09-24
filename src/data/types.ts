@@ -32,6 +32,13 @@ export type AlsoAmount = {
   quoteBn: string;
 };
 
+export type CaseImage = {
+  url: string;
+  creditEn: string;
+  creditBn: string;
+  articlePicturesVictim: boolean;
+};
+
 export type CaseRow = {
   id: string;
   scene: SceneType;
@@ -56,6 +63,7 @@ export type CaseRow = {
   noteBn: string | null;
   extraSources: ExtraSource[];
   othersDied: boolean;
+  image?: CaseImage | null;
 };
 
 export type Lang = "bn" | "en";

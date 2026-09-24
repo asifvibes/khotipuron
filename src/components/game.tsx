@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { CaseFacts } from "@/components/case-facts";
 import { Scene } from "@/components/scene";
-import { cases } from "@/data/cases";
+import { ShareActions } from "@/components/share-actions";
+import { Button } from "@/components/ui/button";
 import {
-  LANG_KEY,
-  SEEN_KEY,
-  articleYear,
-  formatTaka,
-  kindLabel,
-  kindSpan,
-  pickUnseen,
-  sceneLabel,
-  toBnDigits,
-} from "@/data/logic";
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogDescription,
+  DialogPopup,
+  DialogPortal,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cases } from "@/data/cases";
+import { familyLine, LANG_KEY, pickUnseen, sceneLabel, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
 type Phase = "loading" | "idle" | "death" | "card" | "empty";
@@ -45,13 +46,27 @@ export function Game() {
   const [seen, setSeen] = useState<string[]>([]);
   const [current, setCurrent] = useState<CaseRow | null>(null);
   const [idle, setIdle] = useState<Idle>("walk");
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    if (from) {
+      params.delete("from");
+      const next = params.toString();
+      window.history.replaceState({}, "", next ? `/?${next}` : "/");
+    }
     const storedSeen = readSeen();
     const storedLang = readLang();
-    setSeen(storedSeen);
+    const seenIds = new Set(storedSeen);
+    if (from && cases.some((row) => row.id === from)) seenIds.add(from);
+    const nextSeen = [...seenIds];
+    if (from && nextSeen.length !== storedSeen.length) {
+      localStorage.setItem(SEEN_KEY, JSON.stringify(nextSeen));
+    }
+    setSeen(nextSeen);
     setLang(storedLang);
-    const next = pickUnseen(cases, new Set(storedSeen));
+    const next = pickUnseen(cases, seenIds);
     if (!next) {
       setPhase("empty");
       return;
@@ -81,6 +96,15 @@ export function Game() {
     return () => window.clearTimeout(timer);
   }, [phase, current]);
 
+  useEffect(() => {
+    if (phase !== "card") {
+      setReportOpen(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setReportOpen(true), 700);
+    return () => window.clearTimeout(timer);
+  }, [phase, current?.id]);
+
   function toggleLang() {
     const next: Lang = lang === "bn" ? "en" : "bn";
     setLang(next);
@@ -91,11 +115,13 @@ export function Game() {
     const next = pickUnseen(cases, new Set(seen));
     if (!next) {
       setCurrent(null);
+      setReportOpen(false);
       setPhase("empty");
       return;
     }
     setCurrent(next);
     setIdle(Math.random() < 0.5 ? "walk" : "sit");
+    setReportOpen(false);
     setPhase("idle");
   }
 
@@ -118,7 +144,10 @@ export function Game() {
   return (
     <main className="shell">
       <header className="top">
-        <p className="mark">{primary === "bn" ? "সাধারণ কাজ" : "An ordinary thing"}</p>
+        <div className="brand">
+          <p className="mark">ক্ষতিপূরণ</p>
+          <p className="mark-latin">Khotipuron</p>
+        </div>
         <div className="controls">
           <Button type="button" variant="outline" className="retro-btn" onClick={toggleLang}>
             {lang === "bn" ? "English" : "বাংলা"}
@@ -130,12 +159,14 @@ export function Game() {
       </header>
 
       {phase === "loading" ? <p className="lead">…</p> : null}
-
       {phase === "empty" ? <EmptyBoth /> : null}
+
+      {current && phase !== "loading" && phase !== "empty" ? (
+        <Scene idle={idle} phase={phase === "idle" ? "idle" : "death"} scene={current.scene} />
+      ) : null}
 
       {current && (phase === "idle" || phase === "death") ? (
         <section>
-          <Scene idle={idle} phase={phase === "death" ? "death" : "idle"} scene={current.scene} />
           <p className="lead">
             {phase === "idle"
               ? idle === "walk"
@@ -169,144 +200,80 @@ export function Game() {
       ) : null}
 
       {current && phase === "card" ? (
-        <CaseCard row={current} primary={primary} secondary={secondary} onReplay={replay} seenCount={seen.length} />
+        <section>
+          <p className="lead">{familyLine(current, primary)}</p>
+          <p className="sub">{familyLine(current, secondary)}</p>
+          <div className="replay-row">
+            <Button type="button" variant="outline" className="retro-btn" onClick={() => setReportOpen(true)}>
+              {primary === "bn" ? "প্রতিবেদন" : "The report"}
+            </Button>
+            <Button type="button" className="retro-btn" onClick={replay}>
+              {primary === "bn" ? "আরেকটি" : "Another"}
+            </Button>
+          </div>
+          {current.amountBdt != null ? (
+            <p className="sub">
+              {primary === "bn" ? `${toBnDigits(String(seen.length))}টি দেখা হয়েছে` : `${seen.length} seen`}
+            </p>
+          ) : null}
+          {!reportOpen ? <ShareActions row={current} lang={primary} /> : null}
+          <CaseDialog
+            row={current}
+            open={reportOpen}
+            onOpenChange={setReportOpen}
+            primary={primary}
+            secondary={secondary}
+            onReplay={replay}
+          />
+        </section>
       ) : null}
     </main>
   );
 }
 
-function EmptyBoth() {
-  return (
-    <section className="card-block">
-      <p className="name">এই ফাইলের সব ঘটনা আপনি দেখে ফেলেছেন।</p>
-      <p className="lead">পুরনো ঘটনা আবার দেখানো হচ্ছে না।</p>
-      <p className="sub">You have seen every case in this file. Seen cases are not shown again.</p>
-    </section>
-  );
-}
-
-function CaseCard({
+function CaseDialog({
   row,
+  open,
+  onOpenChange,
   primary,
   secondary,
   onReplay,
-  seenCount,
 }: {
   row: CaseRow;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   primary: Lang;
   secondary: Lang;
   onReplay: () => void;
-  seenCount: number;
 }) {
-  const span = row.amountBdt == null ? null : kindSpan(cases, row.scene, row.amountKind);
-  const year = articleYear(row.published);
   const name = primary === "bn" ? row.nameBn : row.nameEn;
-  const otherName = secondary === "bn" ? row.nameBn : row.nameEn;
-  const doing = primary === "bn" ? row.doingBn : row.doingEn;
-  const otherDoing = secondary === "bn" ? row.doingBn : row.doingEn;
-  const place = primary === "bn" ? row.locationBn : row.locationEn;
-  const otherPlace = secondary === "bn" ? row.locationBn : row.locationEn;
-
   return (
-    <section className="card-block">
-      <p className="scene-tag">
-        {sceneLabel[row.scene][primary]}
-        <span> / {sceneLabel[row.scene][secondary]}</span>
-      </p>
-      {name ? <h1 className="name">{name}</h1> : null}
-      {otherName && otherName !== name ? <p className="sub">{otherName}</p> : null}
-      {row.age != null || doing ? (
-        <p className="lead">
-          {row.age != null ? (primary === "bn" ? `${toBnDigits(String(row.age))} বছর। ` : `${row.age}. `) : null}
-          {doing}
-        </p>
-      ) : null}
-      {row.age != null || otherDoing ? (
-        <p className="sub">
-          {row.age != null ? (secondary === "bn" ? `${toBnDigits(String(row.age))} বছর। ` : `${row.age}. `) : null}
-          {otherDoing}
-        </p>
-      ) : null}
-      <p className="place">{place}</p>
-      <p className="sub">{otherPlace}</p>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPortal>
+        <DialogBackdrop />
+        <DialogPopup>
+          <DialogTitle>{name ?? (primary === "bn" ? "প্রতিবেদন" : "The report")}</DialogTitle>
+          <DialogDescription>{familyLine(row, primary)}</DialogDescription>
+          <CaseFacts row={row} primary={primary} secondary={secondary} />
+          <ShareActions row={row} lang={primary} />
+          <div className="replay-row">
+            <Button type="button" className="retro-btn" onClick={onReplay}>
+              {primary === "bn" ? "আরেকটি" : "Another"}
+            </Button>
+            <DialogClose>{primary === "bn" ? "বন্ধ" : "Close"}</DialogClose>
+          </div>
+        </DialogPopup>
+      </DialogPortal>
+    </Dialog>
+  );
+}
 
-      {row.amountBdt == null ? (
-        <>
-          <p className="amount none">
-            {primary === "bn" ? "কোনো অঙ্কের কথা নেই।" : "No amount was discussed."}
-          </p>
-          <p className="sub">
-            {secondary === "bn" ? "কোনো অঙ্কের কথা নেই।" : "No amount was discussed."}
-          </p>
-          <p className="sub">
-            {primary === "bn"
-              ? `প্রতিবেদনের বছর ${toBnDigits(year)}`
-              : `Article year ${year}`}
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="amount">
-            {formatTaka(row.amountBdt, primary)}
-            <span> · {kindLabel[row.amountKind][primary]} · {primary === "bn" ? toBnDigits(year) : year}</span>
-          </p>
-          <p className="sub">
-            {formatTaka(row.amountBdt, secondary)} · {kindLabel[row.amountKind][secondary]} · {year}
-          </p>
-        </>
-      )}
-
-      <p className="quote">{primary === "bn" ? row.quoteBn : row.quoteEn}</p>
-      <p className="sub">{secondary === "bn" ? row.quoteBn : row.quoteEn}</p>
-
-      {row.also ? (
-        <p className="also">
-          {primary === "bn" ? "আলাদা করে, একই প্রতিবেদনে: " : "Separate, in the same report: "}
-          {formatTaka(row.also.amountBdt, primary)} · {kindLabel[row.also.amountKind][primary]}
-        </p>
-      ) : null}
-
-      {row.noteEn && row.noteBn ? (
-        <p className="note">{primary === "bn" ? row.noteBn : row.noteEn}</p>
-      ) : null}
-
-      {row.othersDied ? (
-        <p className="sub">
-          {primary === "bn"
-            ? "একই ঘটনায় আরও মানুষ মারা গেছেন।"
-            : "The article says other people died in the same incident."}
-        </p>
-      ) : null}
-
-      {span ? (
-        <p className="span">
-          {primary === "bn"
-            ? `এই দৃশ্যে, একই ধরন: কম ${formatTaka(span.low, "bn")}, বেশি ${formatTaka(span.high, "bn")}। এটা যোগফল নয়।`
-            : `This scene, same kind: low ${formatTaka(span.low, "en")}, high ${formatTaka(span.high, "en")}. Not a total.`}
-        </p>
-      ) : null}
-
-      <p className="links">
-        <a href={row.url} target="_blank" rel="noreferrer">
-          {row.outlet}
-        </a>
-        {row.extraSources.map((source) => (
-          <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-            {source.outlet}
-          </a>
-        ))}
-      </p>
-
-      <div className="replay-row">
-        <Button type="button" className="retro-btn" onClick={onReplay}>
-          {primary === "bn" ? "আরেকটি" : "Another"}
-        </Button>
-        <p className="sub">
-          {primary === "bn"
-            ? `${toBnDigits(String(seenCount))}টি দেখা হয়েছে`
-            : `${seenCount} seen`}
-        </p>
-      </div>
+function EmptyBoth() {
+  return (
+    <section>
+      <p className="name">এই ফাইলের সব ঘটনা আপনি দেখে ফেলেছেন।</p>
+      <p className="lead">পুরনো ঘটনা আবার দেখানো হচ্ছে না।</p>
+      <p className="sub">You have seen every case in this file. Seen cases are not shown again.</p>
     </section>
   );
 }

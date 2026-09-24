@@ -1,5 +1,15 @@
 import { cases } from "../src/data/cases";
-import { kindSpan, pickUnseen } from "../src/data/logic";
+import {
+  familyLine,
+  hasDigit,
+  incidentSummary,
+  kindSpan,
+  ogDescription,
+  ogTitle,
+  pickUnseen,
+  publicCaseUrl,
+  shareText,
+} from "../src/data/logic";
 
 const ids = cases.map((row) => row.id);
 if (new Set(ids).size !== ids.length) {
@@ -34,6 +44,31 @@ while (guard < cases.length + 2) {
 }
 if (seen.size !== cases.length) throw new Error(`draw stopped at ${seen.size}`);
 if (pickUnseen(cases, seen) !== null) throw new Error("pool recycled");
+
+for (const row of cases) {
+  for (const lang of ["bn", "en"] as const) {
+    const spoken = [familyLine(row, lang), shareText(row, lang), incidentSummary(row, lang)].join("\n");
+    if (/worth/i.test(spoken) || spoken.includes("জীবনের দাম")) {
+      throw new Error(`${row.id} prices a life`);
+    }
+    if (row.amountBdt == null && hasDigit(spoken)) {
+      throw new Error(`${row.id} ${lang} prints a digit without an amount`);
+    }
+  }
+  if (row.amountBdt == null && (hasDigit(ogTitle(row)) || hasDigit(ogDescription(row)))) {
+    throw new Error(`${row.id} preview prints a digit`);
+  }
+  const url = publicCaseUrl(row.id);
+  if (url !== `https://khotipuron.com/c/${row.id}`) throw new Error(`${row.id} public url`);
+  if (!shareText(row, "bn").includes("ক্ষতিপূরণ") || !shareText(row, "en").includes("Khotipuron")) {
+    throw new Error(`${row.id} share invite`);
+  }
+}
+
+const firoza = cases.find((row) => row.id === "firoza-begum-shibganj");
+if (!firoza || !familyLine(firoza, "en").includes("Firoza Begum") || !firoza.url.includes("accidents-and-fires")) {
+  throw new Error("firoza line or url");
+}
 
 const roadGov = kindSpan(cases, "road", "government");
 if (!roadGov || roadGov.low !== 20000 || roadGov.high !== 25000) {
