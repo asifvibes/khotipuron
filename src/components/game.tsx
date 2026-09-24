@@ -133,7 +133,14 @@ export function Game() {
       ) : null}
 
       {current && (phase === "idle" || phase === "count") ? (
-        <p className="lead">{momentLine(current, idle, lang)}</p>
+        <>
+          <h1 className="purpose">
+            {lang === "bn"
+              ? "একটা সাধারণ মুহূর্ত। তারপর একটা মৃত্যু। তারপর খবরে বলা ক্ষতিপূরণ।"
+              : "An ordinary moment. Then a death. Then the compensation the news named."}
+          </h1>
+          <p className="lead">{momentLine(current, idle, lang)}</p>
+        </>
       ) : null}
       {current && phase === "accident" ? <p className="death-line">{deathLine(current.scene, lang)}</p> : null}
 

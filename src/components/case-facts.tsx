@@ -22,7 +22,7 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   const portrait = portraitOf(row);
   const bn = lang === "bn";
   const sources = [{ url: row.url, outlet: row.outlet }, ...row.extraSources];
-  const stake = <p className="lead">{stakeLine(row, lang)}</p>;
+  const stake = <p className="stake">{stakeLine(row, lang)}</p>;
   // Same story keeps the same place. A new story can land in a different one.
   const slot = stakeSlot(row.id);
 
