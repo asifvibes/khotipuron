@@ -7,7 +7,8 @@ import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
 import { Button } from "@/components/ui/button";
 import { cases } from "@/data/cases";
-import { deathLine, ordinaryLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
+import { momentLine } from "@/data/moment";
+import { deathLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
 type Phase = "loading" | "idle" | "count" | "accident" | "card" | "empty";
@@ -126,7 +127,7 @@ export function Game() {
       ) : null}
 
       {current && (phase === "idle" || phase === "count" || phase === "accident") ? (
-        <p className="lead">{phase === "accident" ? deathLine(current.scene, lang) : ordinaryLine(idle, lang)}</p>
+        <p className="lead">{phase === "accident" ? deathLine(current.scene, lang) : momentLine(current, idle, lang)}</p>
       ) : null}
 
       {current && phase === "card" ? (

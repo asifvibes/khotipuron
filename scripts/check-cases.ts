@@ -1,4 +1,5 @@
 import { cases } from "../src/data/cases";
+import { momentLine } from "../src/data/moment";
 import {
   DRAW_NONE_ID,
   familyLine,
@@ -116,6 +117,30 @@ if (!mehedi || familyLine(mehedi, "bn") !== mehediBn || incidentSummary(mehedi, 
 }
 if (familyLine(mehedi, "bn").includes("টাকার ধরন") || familyLine(mehedi, "en").includes("said handed")) {
   throw new Error("mehedi still names the money's kind");
+}
+
+const bannedCountdown = ["মাসেরর", "তার্ক্ষই", "মানুহশ", "তেমননি", "বিশ্রাম", "বেস"];
+for (const row of cases) {
+  for (const idle of ["walk", "sit"] as const) {
+    const bn = momentLine(row, idle, "bn");
+    const en = momentLine(row, idle, "en");
+    const you =
+      idle === "sit"
+        ? "আপনি যেমন করে প্রায়ই গাছের নিচে বসে থাকেন, তেমনি করেই "
+        : "আপনি যেমন প্রায়ই রাস্তা পার হন, তেমনি ভাবে ";
+    if (!bn.startsWith(you) || !bn.includes("একজন মানুষ ")) throw new Error(`${row.id} countdown shape`);
+    if (row.nameBn && bn.includes(row.nameBn)) throw new Error(`${row.id} countdown names them`);
+    if (row.nameEn && (bn.includes(row.nameEn) || en.includes(row.nameEn))) throw new Error(`${row.id} countdown names them in English`);
+    if (bannedCountdown.some((bad) => bn.includes(bad) || en.includes(bad))) throw new Error(`${row.id} countdown typo`);
+    if (row.amountBdt != null && (bn.includes(String(row.amountBdt)) || en.includes(String(row.amountBdt)))) {
+      throw new Error(`${row.id} countdown states an amount`);
+    }
+    if (!row.incidentDate && (bn.includes("সালের") || /\bon \d/.test(en))) throw new Error(`${row.id} countdown invents a date`);
+  }
+}
+const mehediSit = momentLine(mehedi, "sit", "bn");
+if (!mehediSit.endsWith("২০২৬ সালের সেপ্টেম্বর মাসের ২২ তারিখে একজন মানুষ ফুটপাতে বসে ছিলেন।")) {
+  throw new Error(`mehedi countdown drifted: ${mehediSit}`);
 }
 
 const firoza = cases.find((row) => row.id === "firoza-begum-shibganj");

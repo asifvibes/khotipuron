@@ -82,6 +82,15 @@ export function formatDate(iso: string, lang: Lang): string {
   return `${Number(day)} ${MONTHS_EN[monthIndex]} ${year}`;
 }
 
+export function countdownDate(iso: string, lang: Lang): string {
+  const [year, month, day] = iso.split("-");
+  const monthIndex = Number(month) - 1;
+  if (lang === "bn") {
+    return `${toBnDigits(year)} সালের ${MONTHS_BN[monthIndex]} মাসের ${toBnDigits(String(Number(day)))} তারিখে`;
+  }
+  return `on ${Number(day)} ${MONTHS_EN[monthIndex]} ${year}`;
+}
+
 export function dateLine(row: CaseRow, lang: Lang): string {
   if (row.incidentDate) {
     const date = formatDate(row.incidentDate, lang);
@@ -110,13 +119,6 @@ const deathEn: Record<SceneType, string> = {
   rail: "The person died in a rail crash.",
   neglect: "The person died in an incident of negligence.",
 };
-
-export function ordinaryLine(idle: "walk" | "sit", lang: Lang): string {
-  if (idle === "walk") {
-    return lang === "bn" ? "একজন মানুষ রাস্তা দিয়ে হাঁটছিলেন।" : "A person was walking along the road.";
-  }
-  return lang === "bn" ? "একজন মানুষ গাছের নিচে বসে ছিলেন।" : "A person was sitting under a tree.";
-}
 
 export function deathLine(scene: SceneType, lang: Lang): string {
   return lang === "bn" ? deathBn[scene] : deathEn[scene];

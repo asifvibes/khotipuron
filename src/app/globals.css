@@ -553,13 +553,11 @@ html[data-theme="light"] {
 .count {
   position: absolute;
   z-index: 2;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 0.15rem;
+  right: 0.45rem;
   margin: 0;
   color: var(--gold);
-  font-size: 4.5rem;
+  font-size: 3.25rem;
   font-weight: 700;
   line-height: 1;
   text-shadow: 3px 3px 0 #000;
