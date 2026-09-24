@@ -43,18 +43,29 @@ export function TopBar({
   onLang,
   onTheme,
   nav,
+  onHome,
+  homeHref = "/",
 }: {
   lang: Lang;
   theme: Theme;
   onLang: () => void;
   onTheme: (next: Theme) => void;
   nav: "game" | "method";
+  onHome?: () => void;
+  homeHref?: string;
 }) {
+  const mark = lang === "bn" ? "ক্ষতিপূরণ" : "Khotipuron";
   return (
     <header className="top">
-      <Link href="/" className="mark">
-        {lang === "bn" ? "ক্ষতিপূরণ" : "Khotipuron"}
-      </Link>
+      {onHome ? (
+        <button type="button" className="mark" onClick={onHome}>
+          {mark}
+        </button>
+      ) : (
+        <Link href={homeHref} className="mark">
+          {mark}
+        </Link>
+      )}
       <div className="controls">
         <Button type="button" variant="outline" className="retro-btn settings-btn" onClick={onLang}>
           {lang === "bn" ? "English" : "বাংলা"}

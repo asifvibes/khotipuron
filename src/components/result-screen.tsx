@@ -32,7 +32,7 @@ export function ResultScreen({ row }: { row: CaseRow }) {
 
   return (
     <main className="shell">
-      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" />
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" homeHref={`/?from=${row.id}`} />
       <Scene idle="walk" phase="death" scene={row.scene} />
       <CaseFacts row={row} lang={lang} />
       <ShareActions row={row} lang={lang} />

@@ -180,10 +180,16 @@ html[data-theme="light"] {
 
 .mark {
   margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
   color: inherit;
+  font: inherit;
   font-weight: 700;
   letter-spacing: 0.02em;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .controls {

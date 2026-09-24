@@ -111,7 +111,7 @@ export function Game() {
 
   return (
     <main className="shell">
-      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" />
+      <TopBar lang={lang} theme={theme} onLang={toggleLang} onTheme={chooseTheme} nav="game" onHome={replay} />
 
       {phase === "loading" ? <p className="lead">…</p> : null}
       {phase === "empty" ? <EmptyPool lang={lang} /> : null}
