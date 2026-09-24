@@ -37,8 +37,13 @@ export function inDraw(_row: CaseRow): boolean {
 
 /** 0 when an amount was paid or handed over, 1 when an amount is only mentioned, 2 when there is no amount. */
 export function paymentRank(row: CaseRow): number {
-  if (row.amountBdt == null) return 2;
-  return row.paid === true ? 0 : 1;
+  const hasAmount = row.amountBdt != null;
+  const paid = row.paid === true ? 0 : 1;
+  if (hasAmount && row.scene === "road") return paid;
+  if (hasAmount && row.scene === "river") return 2 + paid;
+  if (hasAmount) return 4 + paid;
+  if (row.scene === "road") return 6;
+  return 7;
 }
 
 export function toBnDigits(value: string): string {
