@@ -13,6 +13,7 @@ import {
   pickUnseen,
   publicCaseUrl,
   shareText,
+  toBnDigits,
 } from "../src/data/logic";
 
 const ids = cases.map((row) => row.id);
@@ -67,7 +68,7 @@ for (const row of cases) {
     if (/worth/i.test(spoken) || spoken.includes("জীবনের দাম")) {
       throw new Error(`${row.id} prices a life`);
     }
-    if (row.amountBdt == null && hasDigit(spoken)) {
+    if (row.amountBdt == null && hasDigit(stripPlaceAndAge(row, spoken))) {
       throw new Error(`${row.id} ${lang} prints a digit without an amount`);
     }
     if (row.amountBdt == null && lang === "bn" && familyLine(row, "bn") !== NO_AMOUNT_BN) {
@@ -92,6 +93,29 @@ for (const row of cases) {
   if (ogDescription(row).includes("Khotipuron")) {
     throw new Error(`${row.id} preview repeats English`);
   }
+}
+
+function stripPlaceAndAge(row: (typeof cases)[number], text: string): string {
+  let next = text;
+  if (row.age != null) {
+    next = next.split(String(row.age)).join("").split(toBnDigits(String(row.age))).join("");
+  }
+  for (const place of [row.locationBn, row.locationEn]) {
+    if (place) next = next.split(place).join("");
+  }
+  return next;
+}
+
+const mehedi = cases.find((row) => row.id === "mehedi-hasan-mim-baridhara");
+const mehediBn =
+  "এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ৯,০০,০০০ টাকা পেতে পারে। নিউজ আর্টিকেলে এই টাকার এমাউন্টের কথাই বলেছে । মেহেদী হাসান মিম-এর পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।";
+const mehediFacts =
+  "মেহেদী হাসান মিম, বয়স ২৪ বছর। ফুটপাতে বসে ছিলেন। তিনি নির্মাণশ্রমিক। খবরে ঘটনাস্থল ঢাকার বারিধারা কূটনৈতিক এলাকা, রোড নম্বর ১।";
+if (!mehedi || familyLine(mehedi, "bn") !== mehediBn || incidentSummary(mehedi, "bn") !== mehediFacts) {
+  throw new Error("mehedi page drifted");
+}
+if (familyLine(mehedi, "bn").includes("টাকার ধরন") || familyLine(mehedi, "en").includes("said handed")) {
+  throw new Error("mehedi still names the money's kind");
 }
 
 const firoza = cases.find((row) => row.id === "firoza-begum-shibganj");

@@ -7,7 +7,7 @@ import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
 import { Button } from "@/components/ui/button";
 import { cases } from "@/data/cases";
-import { deathLine, familyLine, ordinaryLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
+import { deathLine, ordinaryLine, pickUnseen, SEEN_KEY, toBnDigits } from "@/data/logic";
 import type { CaseRow, Lang } from "@/data/types";
 
 type Phase = "loading" | "idle" | "count" | "accident" | "card" | "empty";
@@ -147,11 +147,8 @@ function CaseCard({
   seen: number;
   onReplay: () => void;
 }) {
-  const name = lang === "bn" ? row.nameBn : row.nameEn;
   return (
     <section>
-      {name ? <h1 className="name">{name}</h1> : null}
-      <p className="lead">{familyLine(row, lang)}</p>
       <CaseFacts row={row} lang={lang} />
       <ShareActions row={row} lang={lang} />
       <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>

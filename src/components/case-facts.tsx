@@ -3,9 +3,10 @@
 import { useState } from "react";
 import {
   dateLine,
-  formatTaka,
+  familyLine,
   incidentSummary,
-  kindLabel,
+  NO_AMOUNT_BN,
+  NO_AMOUNT_EN,
   portraitOf,
   safeText,
   sceneSentence,
@@ -14,47 +15,57 @@ import type { CaseRow, Lang } from "@/data/types";
 
 export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   const summary = incidentSummary(row, lang);
-  const quote = safeText(row, lang === "bn" ? row.quoteBn : row.quoteEn);
-  const note = safeText(row, lang === "bn" ? row.noteBn : row.noteEn);
+  const quote = reportedLine(row, lang === "bn" ? row.quoteBn : row.quoteEn);
+  const alsoQuote = row.also ? reportedLine(row, lang === "bn" ? row.also.quoteBn : row.also.quoteEn) : null;
+  const note = reportedLine(row, lang === "bn" ? row.noteBn : row.noteEn);
   const portrait = portraitOf(row);
+  const bn = lang === "bn";
+  const sources = [{ url: row.url, outlet: row.outlet }, ...row.extraSources];
 
   return (
     <div>
-      <p className="scene-tag">{sceneSentence(row.scene, lang)}</p>
+      <p className="lead">{familyLine(row, lang)}</p>
+      <p className="lead">{sceneSentence(row.scene, lang)}</p>
       {summary ? <p className="lead">{summary}</p> : null}
-      {quote ? <p className="quote">{quote}</p> : null}
-      {row.also && row.amountBdt != null ? (
-        <p className="also">
-          {lang === "bn" ? "একই খবরে আলাদা আরও একটি টাকার কথা আছে: " : "The same article also states a separate amount: "}
-          {formatTaka(row.also.amountBdt, lang)} ({kindLabel[row.also.amountKind][lang]})
-        </p>
-      ) : null}
-      <p className="sub">{dateLine(row, lang)}</p>
-      {note ? <p className="note">{note}</p> : null}
+      {quote ? <p className="lead">{quote}</p> : null}
+      {alsoQuote ? <p className="lead">{alsoQuote}</p> : null}
+      <p className="lead">{dateLine(row, lang)}</p>
+      {note ? <p className="lead">{note}</p> : null}
       {row.othersDied ? (
-        <p className="sub">
-          {lang === "bn"
-            ? "একই ঘটনায় আরও মানুষ মারা গেছেন।"
-            : "The article says other people died in the same incident."}
+        <p className="lead">
+          {bn ? "একই ঘটনায় আরও মানুষ মারা গেছেন।" : "The article says other people died in the same incident."}
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />
-      <p className="note">{lang === "bn" ? "এখানে যা লেখা, তা ওই খবর থেকে নেওয়া।" : "What is written here is taken from that article."}</p>
-      <p className="note">{lang === "bn" ? "এটি উকিলের পরামর্শ নয়।" : "This is not a lawyer's advice."}</p>
-      <p className="note">{lang === "bn" ? "কত টাকা পাবেন, তা এখানে বলা হয়নি।" : "This does not say how much you would receive."}</p>
-      <p className="note">{lang === "bn" ? "টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।" : "This is not proof the money was received."}</p>
-      <p className="links">
-        <a href={row.url} target="_blank" rel="noreferrer">
-          {row.outlet}
-        </a>
-        {row.extraSources.map((source) => (
-          <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
+      <hr className="source-break" />
+      <p className="lead">{bn ? "এখানে যা লেখা, তা ওই নিউজ আর্টিকেল থেকে নেওয়া।" : "What is written here is taken from that news article."}</p>
+      <p className="lead">{bn ? "এটি উকিলের পরামর্শ নয়।" : "This is not a lawyer's advice."}</p>
+      <p className="lead">
+        {bn
+          ? "আপনি এভাবে মারা গেলে কত টাকা পাবেন, তা এখানে বলা হয়নি।"
+          : "This does not say how much you would receive if you died this way."}
+      </p>
+      <p className="lead">
+        {bn
+          ? "ভিক্টিমের পরিবার টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।"
+          : "This is not proof the victim's family received the money."}
+      </p>
+      {sources.map((source) => (
+        <p className="source-line" key={source.url}>
+          {bn ? "নিউজ সোর্সঃ " : "News source: "}
+          <a href={source.url} target="_blank" rel="noreferrer">
             {source.outlet}
           </a>
-        ))}
-      </p>
+        </p>
+      ))}
     </div>
   );
+}
+
+function reportedLine(row: CaseRow, text: string | null): string | null {
+  const line = safeText(row, text);
+  if (!line || line === NO_AMOUNT_BN || line === NO_AMOUNT_EN) return null;
+  return line;
 }
 
 function Portrait({

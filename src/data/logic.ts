@@ -170,25 +170,23 @@ export function publicCaseUrl(id: string): string {
 
 export function discussedY(row: CaseRow, lang: Lang): string | null {
   if (row.amountBdt == null) return null;
-  return `${formatTaka(row.amountBdt, lang)}, ${kindLabel[row.amountKind][lang]}`;
+  return formatTaka(row.amountBdt, lang);
 }
 
 export function familyLine(row: CaseRow, lang: Lang): string {
-  const y = discussedY(row, lang);
-  if (!y) return lang === "bn" ? NO_AMOUNT_BN : NO_AMOUNT_EN;
+  if (row.amountBdt == null) return lang === "bn" ? NO_AMOUNT_BN : NO_AMOUNT_EN;
   const name = lang === "bn" ? row.nameBn : row.nameEn;
-  const taka = formatTaka(row.amountBdt as number, lang);
-  const kind = kindLabel[row.amountKind][lang];
+  const taka = formatTaka(row.amountBdt, lang);
   if (lang === "bn") {
-    const because = name
-      ? `${name}-এর পরিবারের জন্য খবরে এই কথা বলা হয়েছে।`
-      : "খবরে এক পরিবারের জন্য এই কথা বলা হয়েছে।";
-    return `এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ${taka} পেতে পারে। খবরে এই টাকার ধরন ${kind}। ${because}`;
+    const family = name
+      ? `${name}-এর পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।`
+      : "এই পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।";
+    return `এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ${taka} পেতে পারে। নিউজ আর্টিকেলে এই টাকার এমাউন্টের কথাই বলেছে । ${family}`;
   }
-  const because = name
-    ? `The article discussed that sum for ${name}'s family.`
-    : "The article discussed that sum for the family in this report.";
-  return `If you died in an incident like this, your family may get ${taka} as Khotipuron. The article lists that amount as ${kind}. ${because}`;
+  const family = name
+    ? `The article says this sum would be given for ${name}'s family.`
+    : "The article says this sum would be given for the family in this report.";
+  return `If someone died in an incident like this, the family may get ${taka}. The article states this amount. ${family}`;
 }
 
 export function shareText(row: CaseRow, lang: Lang): string {
@@ -225,13 +223,10 @@ export function safeText(row: CaseRow, text: string | null): string | null {
 export function incidentSummary(row: CaseRow, lang: Lang): string {
   const name = safeText(row, lang === "bn" ? row.nameBn : row.nameEn);
   const doing = safeText(row, lang === "bn" ? row.doingBn : row.doingEn);
-  const place = safeText(row, lang === "bn" ? row.locationBn : row.locationEn);
+  const placeRaw = (lang === "bn" ? row.locationBn : row.locationEn).trim();
+  const place = placeRaw.length > 0 ? placeRaw : null;
   const age =
-    row.amountBdt != null && row.age != null
-      ? lang === "bn"
-        ? `${toBnDigits(String(row.age))} বছর`
-        : String(row.age)
-      : null;
+    row.age != null ? (lang === "bn" ? `${toBnDigits(String(row.age))} বছর` : String(row.age)) : null;
   const sentences: string[] = [];
   if (lang === "bn") {
     if (doing) {

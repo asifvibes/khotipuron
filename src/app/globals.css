@@ -485,6 +485,23 @@ html[data-theme="light"] {
   margin: 0.8rem 0;
 }
 
+.source-break {
+  border: 0;
+  border-top: 2px solid var(--line);
+  margin: 1.75rem 0 1.15rem;
+}
+
+.source-line {
+  margin: 0.85rem 0;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.source-line a {
+  color: var(--gold);
+  text-underline-offset: 3px;
+}
+
 .pair {
   display: flex;
   flex-direction: column;
