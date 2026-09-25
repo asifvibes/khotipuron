@@ -2,7 +2,7 @@
 
 import { TopBar, usePrefs } from "@/components/prefs";
 import { cases } from "@/data/cases";
-import { kindLabel, paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
+import { collectedYearSpan, kindLabel, paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
 import type { AmountKind, Lang } from "@/data/types";
 
 const KIND_ORDER: AmountKind[] = [
@@ -56,6 +56,21 @@ const EN = {
   feedback: "If you have a suggestion or feedback about this website, tell us on our Facebook page:",
 };
 
+function chartNote(lang: Lang): string {
+  const count = cases.length;
+  const span = collectedYearSpan(cases);
+  const yearBn = !span
+    ? ""
+    : span.from === span.to
+      ? ` শুধু ${toBnDigits(String(span.from))} সাল।`
+      : ` ${toBnDigits(String(span.from))} থেকে ${toBnDigits(String(span.to))} পর্যন্ত।`;
+  const yearEn = !span ? "" : span.from === span.to ? ` in ${span.from}.` : ` from ${span.from} to ${span.to}.`;
+  if (lang === "bn") {
+    return `এই নাম্বারগুলো কেবল ${toBnDigits(String(count))}টা ঘটনার উপর ভিত্তি করে নির্ধারণ করা হয়েছে।${yearBn} দেশে এতগুলো অ্যাক্সিডেন্টই হয়েছে, এমন না। আমরা আরও এরকম নিউজ কালেক্ট করছি। এই নাম্বারগুলো নিয়মিত আপডেট করা হবে।`;
+  }
+  return `These numbers are based only on the ${count} stories collected here.${yearEn} This is not every accident in the country. We are still collecting news like this. These numbers will be updated.`;
+}
+
 function PaymentChart({ lang }: { lang: Lang }) {
   const bars = paymentBars(cases);
   const rows = [
@@ -70,6 +85,7 @@ function PaymentChart({ lang }: { lang: Lang }) {
   const widest = Math.max(...rows.map((row) => row.pct), 1);
   return (
     <figure className="chart">
+      <p className="chart-note">{chartNote(lang)}</p>
       {rows.map((row) => (
         <div className="chart-row" key={row.key}>
           <div className="chart-name">{row.label}</div>

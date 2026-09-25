@@ -248,6 +248,11 @@ html[data-theme="light"] {
   line-height: 1.45;
 }
 
+.chart > .chart-note {
+  margin-top: 0;
+  overflow-wrap: break-word;
+}
+
 .nudge a {
   color: var(--gold);
   font-weight: 700;

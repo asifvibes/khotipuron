@@ -302,6 +302,17 @@ export function inDhakaCity(row: CaseRow): boolean {
   return /\bDhaka\b/.test(cleaned);
 }
 
+/** Incident year, or the report year when the article gives no incident date. */
+export function collectedYearSpan(rows: CaseRow[]): { from: number; to: number } | null {
+  const years = rows.flatMap((row) => {
+    const iso = row.incidentDate || row.published;
+    const year = Number(iso.slice(0, 4));
+    return Number.isFinite(year) && year > 0 ? [year] : [];
+  });
+  if (years.length === 0) return null;
+  return { from: Math.min(...years), to: Math.max(...years) };
+}
+
 export function paymentBars(rows: CaseRow[]) {
   const rate = (group: CaseRow[]) => {
     const paid = group.filter((row) => row.paid === true).length;
