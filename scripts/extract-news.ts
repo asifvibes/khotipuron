@@ -1,5 +1,6 @@
 import type { AmountKind, SceneType, Sex } from "../src/data/types";
 import { formatTaka } from "../src/data/logic";
+import { articleDeathAbroad } from "./abroad";
 
 export type NewsDraft = {
   scene: SceneType;
@@ -261,6 +262,7 @@ export function extractArticle(text: string): ExtractResult {
   if (clean.length < 80) return { ok: false, reason: "page is too short to support a case" };
   if (accusedIsUnder18(clean)) return { ok: false, reason: "an accused person is under 18" };
   if (!/\b(killed|died|death)\b|নিহত|মারা গে|মারা যান|মৃত্যু/.test(clean)) return { ok: false, reason: "no death in the page" };
+  if (articleDeathAbroad(clean)) return { ok: false, reason: "death happened outside Bangladesh" };
   if (!/compensation|cheque|ক্ষতিপূরণ|চেক/.test(clean)) return { ok: false, reason: "no compensation in the page" };
   if (multipleVictims(clean)) return { ok: false, reason: "more than one victim, not split automatically" };
 

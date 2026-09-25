@@ -39,6 +39,12 @@ const minorAccused = extractArticle(
 assert.equal(minorAccused.ok, false);
 if (!minorAccused.ok) assert.match(minorAccused.reason, /under 18/);
 
+const fiji = extractArticle(
+  "Raihan Ali was killed in a road crash in Fiji on 27 June 2023. The Fiji government said it will pay Tk 40.5 lakh to his father. The money was not handed over.",
+);
+assert.equal(fiji.ok, false);
+if (!fiji.ok) assert.match(fiji.reason, /outside Bangladesh/);
+
 const unclear = extractArticle(
   "The High Court asked why Tk 1.5 crore in compensation should not be considered after a man died in a road crash on 4 March 2024.",
 );

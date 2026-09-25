@@ -1,4 +1,5 @@
 import { cases } from "../src/data/cases";
+import { locationOutsideBangladesh } from "./abroad";
 import { momentLine } from "../src/data/moment";
 import {
   familyLine,
@@ -21,6 +22,11 @@ import {
 const ids = cases.map((row) => row.id);
 if (new Set(ids).size !== ids.length) {
   throw new Error("duplicate case id");
+}
+
+for (const row of cases) {
+  const abroad = locationOutsideBangladesh(row.locationEn, row.locationBn);
+  if (abroad) throw new Error(`${row.id} death happened outside Bangladesh (${abroad})`);
 }
 
 const digit = /[0-9০-৯]/;

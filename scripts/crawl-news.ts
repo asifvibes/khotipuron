@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { momentLine } from "../src/data/moment";
 import type { CaseRow } from "../src/data/types";
 import { familyLine } from "../src/data/logic";
+import { articleDeathAbroad, locationOutsideBangladesh } from "./abroad";
 import { extractArticle, htmlToText, type NewsDraft } from "./extract-news";
 
 const CASES_PATH = resolve("src/data/cases.json");
@@ -183,6 +184,10 @@ async function main() {
       continue;
     }
     const draft = extracted.draft;
+    if (locationOutsideBangladesh(draft.locationEn, draft.locationBn) || articleDeathAbroad(page)) {
+      log(item.url, "death happened outside Bangladesh");
+      continue;
+    }
     const who = personKey(draft);
     if (who && seenPeople.has(who)) {
       log(item.url, "same victim and date already collected");
