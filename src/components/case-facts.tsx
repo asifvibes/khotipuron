@@ -5,6 +5,7 @@ import {
   dateLine,
   familyLine,
   incidentSummary,
+  moneyLine,
   stakeLine,
   NO_AMOUNT_BN,
   NO_AMOUNT_EN,
@@ -16,6 +17,7 @@ import type { CaseRow, Lang } from "@/data/types";
 
 export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   const summary = incidentSummary(row, lang);
+  const money = moneyLine(row, lang);
   const quote = reportedLine(row, lang === "bn" ? row.quoteBn : row.quoteEn);
   const alsoQuote = row.also ? reportedLine(row, lang === "bn" ? row.also.quoteBn : row.also.quoteEn) : null;
   const note = reportedLine(row, lang === "bn" ? row.noteBn : row.noteEn);
@@ -29,6 +31,7 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
   return (
     <div>
       <p className="lead">{familyLine(row, lang)}</p>
+      {money ? <p className="lead">{money}</p> : null}
       <p className="lead">{sceneSentence(row.scene, lang)}</p>
       {summary ? <p className="lead">{summary}</p> : null}
       {slot === "middle" ? stake : null}

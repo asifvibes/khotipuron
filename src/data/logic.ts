@@ -202,6 +202,23 @@ export function discussedY(row: CaseRow, lang: Lang): string | null {
   return formatTaka(row.amountBdt, lang);
 }
 
+/** Kind and paid-or-not, kept off the family line so that sentence stays as written. */
+export function moneyLine(row: CaseRow, lang: Lang): string | null {
+  if (row.amountBdt == null || row.amountKind === "none") return null;
+  const kind = kindLabel[row.amountKind];
+  if (lang === "bn") {
+    const paid = row.paid === true ? "টাকা দেয়া হয়েছে বলে খবর।" : "পেইড বলা নেই।";
+    const second = row.also ? ` আরেক এমাউন্টের ধরন: ${kindLabel[row.also.amountKind].bn}।` : "";
+    return `${paid} এমাউন্টের ধরন: ${kind.bn}।${second}`;
+  }
+  const paid =
+    row.paid === true
+      ? "The article says the money was handed over."
+      : "The article does not say this was paid.";
+  const second = row.also ? ` The other amount's kind: ${kindLabel[row.also.amountKind].en}.` : "";
+  return `${paid} Kind: ${kind.en}.${second}`;
+}
+
 export function familyLine(row: CaseRow, lang: Lang): string {
   if (row.amountBdt == null) return lang === "bn" ? NO_AMOUNT_BN : NO_AMOUNT_EN;
   const name = lang === "bn" ? row.nameBn : row.nameEn;
