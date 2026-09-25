@@ -121,20 +121,20 @@ export function countdownDate(iso: string, lang: Lang): string {
 export function dateLine(row: CaseRow, lang: Lang): string {
   if (row.incidentDate) {
     const date = formatDate(row.incidentDate, lang);
-    return lang === "bn" ? `ঘটনাটি ঘটে ${date}।` : `The incident happened on ${date}.`;
+    return lang === "bn" ? `ঘটনাটা ঘটেছে ${date}।` : `The incident happened on ${date}.`;
   }
   const date = formatDate(row.published, lang);
-  return lang === "bn" ? `এটি প্রতিবেদনের তারিখ, ${date}।` : `This is the report date, ${date}.`;
+  return lang === "bn" ? `এটা খবরের তারিখ, ${date}।` : `This is the report date, ${date}.`;
 }
 
 const deathBn: Record<SceneType, string> = {
-  road: "সড়ক দুর্ঘটনায় তিনি মারা যান।",
-  open_drain: "খোলা ড্রেনে পড়ে তিনি মারা যান।",
-  workplace: "কর্মস্থলে দুর্ঘটনায় তিনি মারা যান।",
-  fire: "আগুনে তিনি মারা যান।",
-  river: "নদীতে তিনি মারা যান।",
-  rail: "রেল দুর্ঘটনায় তিনি মারা যান।",
-  neglect: "অবহেলায় তিনি মারা যান।",
+  road: "সড়ক দুর্ঘটনায় তিনি মারা গেছেন।",
+  open_drain: "খোলা ড্রেনে পড়ে তিনি মারা গেছেন।",
+  workplace: "কর্মস্থলে দুর্ঘটনায় তিনি মারা গেছেন।",
+  fire: "আগুনে তিনি মারা গেছেন।",
+  river: "নদীতে তিনি মারা গেছেন।",
+  rail: "রেল দুর্ঘটনায় তিনি মারা গেছেন।",
+  neglect: "অবহেলায় তিনি মারা গেছেন।",
 };
 
 const deathEn: Record<SceneType, string> = {
@@ -153,13 +153,13 @@ export function deathLine(scene: SceneType, lang: Lang): string {
 
 export function sceneSentence(scene: SceneType, lang: Lang): string {
   const bn: Record<SceneType, string> = {
-    road: "এটি একটি সড়ক দুর্ঘটনা।",
-    open_drain: "এটি একটি খোলা ড্রেনের ঘটনা।",
-    workplace: "এটি একটি কর্মস্থলের দুর্ঘটনা।",
-    fire: "এটি একটি আগুনের ঘটনা।",
-    river: "এটি একটি নদীর ঘটনা।",
-    rail: "এটি একটি রেল দুর্ঘটনা।",
-    neglect: "এটি অবহেলার একটি ঘটনা।",
+    road: "এটা একটা সড়ক দুর্ঘটনা।",
+    open_drain: "এটা খোলা ড্রেনের একটা ঘটনা।",
+    workplace: "এটা কর্মস্থলের একটা দুর্ঘটনা।",
+    fire: "এটা আগুনের একটা ঘটনা।",
+    river: "এটা নদীর একটা ঘটনা।",
+    rail: "এটা একটা রেল দুর্ঘটনা।",
+    neglect: "এটা অবহেলার একটা ঘটনা।",
   };
   const en: Record<SceneType, string> = {
     road: "This was a road crash.",
@@ -208,9 +208,9 @@ export function familyLine(row: CaseRow, lang: Lang): string {
   const taka = formatTaka(row.amountBdt, lang);
   if (lang === "bn") {
     const family = name
-      ? `${name}-এর পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।`
-      : "এই পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।";
-    return `এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ${taka} পেতে পারে। নিউজ আর্টিকেলে এই টাকার এমাউন্টের কথাই বলেছে । ${family}`;
+      ? `${name}-এর পরিবারের জন্য এই টাকাই দেয়া হবে বলে খবর।`
+      : "এই পরিবারের জন্য এই টাকাই দেয়া হবে বলে খবর।";
+    return `এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ${taka} পেতে পারে। খবরে এই এমাউন্টই আছে। ${family}`;
   }
   const family = name
     ? `The article says this sum would be given for ${name}'s family.`
@@ -340,17 +340,17 @@ export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
   const bn = (value: number) => toBnDigits(String(value));
   if (lang === "bn") {
     const lines = [
-      `এই ${bn(rows.length)}টি খবরের মধ্যে ${bn(paid.length)}টিতে টাকা দেওয়া হয়েছে বলে লেখা আছে। ${bn(mentioned.length)}টিতে টাকার কথা আছে, কিন্তু দেওয়া হয়েছে বলা নেই। বাকি ${bn(none)}টিতে কোনো এমাউন্ট নেই।`,
-      `ঢাকা শহরে ${bn(dhaka.length)}টি ঘটনা, তার মধ্যে ${bn(dhakaPaid)}টিতে টাকা দেওয়া হয়েছে। ঢাকার বাইরে ${bn(outside.length)}টি ঘটনা, তার মধ্যে ${bn(outsidePaid)}টিতে টাকা দেওয়া হয়েছে।`,
-      `ঢাকার বাইরের ${bn(outsidePaid)}টির ${bn(boat.length)}টি একই নৌকা। কর্ণফুলীতে এফভি ম্যাগফেরাত ডুবেছিল, একদিনে নাবিকদের পরিবারকে টাকা দেওয়া হয়েছে। ওই খবর বাদ দিলে ঢাকার বাইরে ${bn(outsideWithoutBoat.length)}টির মধ্যে ${bn(outsidePaidWithoutBoat)}টিতে টাকা দেওয়া হয়েছে।`,
-      `নারী ${bn(women.length)} জনের মধ্যে ${bn(womenPaid)} জন টাকা পেয়েছেন বলে খবর। পুরুষ ${bn(men.length)} জনের মধ্যে ${bn(menPaid)} জন, তার ${bn(boat.filter((row) => row.sex === "male").length)} জন ওই নৌকার। বেশির ভাগ নাবিকের বয়স খবরে নেই, তাই বয়স দিয়ে হার বলা যাচ্ছে না।`,
-      `সড়কে ${bn(road.length)}টির মধ্যে ${bn(roadPaid)}টিতে টাকা দেওয়া হয়েছে। নদীতে টাকা পাওয়ার ${bn(riverPaid)}টি খবরের সবই ওই একটি নৌকা।`,
+      `মোট ${bn(rows.length)}টা খবর। ${bn(paid.length)}টাতে টাকা পেইড হয়েছে বলে খবর। ${bn(mentioned.length)}টাতে এমাউন্ট আছে, পেইড কি না বলা নেই। বাকি ${bn(none)}টাতে কোনো এমাউন্টই নেই।`,
+      `ঢাকায় ${bn(dhaka.length)}টা কেস, পেইড ${bn(dhakaPaid)}টা। ঢাকার বাইরে ${bn(outside.length)}টা কেস, পেইড ${bn(outsidePaid)}টা।`,
+      `বাইরের পেইডের ${bn(boat.length)}টা একই বোট। কর্ণফুলীতে এফভি ম্যাগফেরাত ডুবেছিল, একদিনে ক্রুদের ফ্যামিলিকে টাকা দেয়। ওই কেস বাদ দিলে বাইরে ${bn(outsideWithoutBoat.length)}টার মধ্যে পেইড ${bn(outsidePaidWithoutBoat)}টা।`,
+      `মহিলা ${bn(women.length)} জনের মধ্যে পেইড ${bn(womenPaid)} জন। পুরুষ ${bn(men.length)} জনের মধ্যে পেইড ${bn(menPaid)} জন, তার ${bn(boat.filter((row) => row.sex === "male").length)} জন ওই বোটের। ক্রুদের বেশির ভাগের বয়স খবরে নেই, তাই বয়স দিয়ে রেট বলা যাচ্ছে না।`,
+      `রোডে ${bn(road.length)}টার মধ্যে পেইড ${bn(roadPaid)}টা। রিভারে যত পেইড, সব ওই এক বোট।`,
     ];
     if (quietScenes.length) {
       const names = quietScenes.map((scene) => sceneLabel[scene].bn).join(", ");
-      lines.push(`খোলা ড্রেন, আগুন আর রেলের খবরে এই ফাইলে টাকা দেওয়ার কথা নেই। সেগুলো: ${names}।`);
+      lines.push(`ড্রেন, ফায়ার আর রেলের খবরে এই ফাইলে পেইড নেই। সেকশন: ${names}।`);
     }
-    lines.push("ঢাকা বলতে খবরে ঘটনাস্থল ঢাকা শহর। ঢাকার নামে মহাসড়ক অন্য জেলায় হলে সেটা ঢাকার বাইরে। এটা দেশের সব মৃত্যু নয়, শুধু এখানে থাকা খবর।");
+    lines.push("ঢাকা মানে খবরে ঘটনাস্থল ঢাকা শহর। ঢাকা-সিলেট হাইওয়ে যদি সিলেটে হয়, সেটা ঢাকার বাইরে। এটা দেশের সব ডেথ না, শুধু এখানে যত খবর আছে।");
     return lines;
   }
 

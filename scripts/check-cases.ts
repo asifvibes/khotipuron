@@ -118,7 +118,7 @@ function stripPlaceAndAge(row: (typeof cases)[number], text: string): string {
 
 const mehedi = cases.find((row) => row.id === "mehedi-hasan-mim-baridhara");
 const mehediBn =
-  "এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ৯,০০,০০০ টাকা পেতে পারে। নিউজ আর্টিকেলে এই টাকার এমাউন্টের কথাই বলেছে । মেহেদী হাসান মিম-এর পরিবারের জন্য এমন টাকাই দেয়া হবে বলা হয়েছে।";
+  "এই ধরনের ঘটনায় কেউ মারা গেলে পরিবার ৯,০০,০০০ টাকা পেতে পারে। খবরে এই এমাউন্টই আছে। মেহেদী হাসান মিম-এর পরিবারের জন্য এই টাকাই দেয়া হবে বলে খবর।";
 const mehediFacts =
   "মেহেদী হাসান মিম, বয়স ২৪ বছর। ফুটপাতে বসে ছিলেন। তিনি নির্মাণশ্রমিক। খবরে ঘটনাস্থল ঢাকার বারিধারা কূটনৈতিক এলাকা, রোড নম্বর ১।";
 if (!mehedi || familyLine(mehedi, "bn") !== mehediBn || incidentSummary(mehedi, "bn") !== mehediFacts) {

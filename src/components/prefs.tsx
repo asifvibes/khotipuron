@@ -90,7 +90,7 @@ export function TopBar({
           onClick={() => track("info_open")}
         >
           <InfoIcon />
-          <span>{lang === "bn" ? "তথ্য" : "Info"}</span>
+          <span>{lang === "bn" ? "ইনফো" : "Info"}</span>
         </Link>
       </div>
     </header>

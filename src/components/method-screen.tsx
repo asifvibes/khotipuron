@@ -17,7 +17,7 @@ const BN = {
   summary: "সামারিঃ",
   sections:
     "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল এবং অবহেলা এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।",
-  settlement: "টাকা দেওয়ার খবরঃ",
+  settlement: "পেইডের খবরঃ",
   kindsLabel: "টাকার ধরনঃ",
   kinds: [
     "দাবি",
@@ -60,11 +60,11 @@ const EN = {
 function PaymentChart({ lang }: { lang: Lang }) {
   const bars = paymentBars(cases);
   const rows = [
-    { key: "dhaka", label: lang === "bn" ? "ঢাকা শহর" : "Dhaka city", ...bars.dhaka },
+    { key: "dhaka", label: lang === "bn" ? "ঢাকায়" : "Dhaka city", ...bars.dhaka },
     { key: "outside", label: lang === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka", ...bars.outside },
     {
       key: "boat",
-      label: lang === "bn" ? "বাইরে, নৌকা বাদ" : "Outside, without the boat",
+      label: lang === "bn" ? "বাইরে, বোট বাদ" : "Outside, without the boat",
       ...bars.outsideNoBoat,
     },
   ];
@@ -86,7 +86,7 @@ function PaymentChart({ lang }: { lang: Lang }) {
       ))}
       <figcaption className="chart-note">
         {lang === "bn"
-          ? "দৈর্ঘ্য হলো কতটিতে টাকা দেওয়া হয়েছে বলে খবর। শেষ দাগ থেকে ম্যাগফেরাতের আটটি টাকা বাদ।"
+          ? "বার যত লম্বা, তত বেশি খবরে টাকা পেইড। শেষ বার থেকে ম্যাগফেরাতের আটটা পেমেন্ট বাদ।"
           : "Length is how many stories say the money was handed over. The last bar leaves out Magferat’s eight payments."}
       </figcaption>
     </figure>
@@ -104,12 +104,19 @@ function totalLine(lang: Lang): string {
 function sceneLines(lang: Lang): string[] {
   return sceneCounts(cases).map((row) => {
     if (lang === "bn") {
-      const label = sceneLabel[row.scene].bn;
       const total = toBnDigits(String(row.total));
       const amount = toBnDigits(String(row.withAmount));
       const none = toBnDigits(String(row.none));
-      const head = row.scene === "road" ? `${label} ${total}টি` : `${label}- ${total}টি`;
-      return `${head} ঘটনা আছে। ${amount}টিতে টাকার এমাউন্ট লেখা আছে। ${none}টিতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।`;
+      const where: Record<typeof row.scene, string> = {
+        road: "সড়কে",
+        open_drain: "খোলা ড্রেনে",
+        workplace: "কর্মস্থলে",
+        fire: "আগুনে",
+        river: "নদীতে",
+        rail: "রেলে",
+        neglect: "অবহেলায়",
+      };
+      return `${where[row.scene]} ${total}টা খবর। ${amount}টাতে এমাউন্ট আছে। বাকি ${none}টাতে ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি।`;
     }
     const label = sceneLabel[row.scene].en;
     return `${label}. There are ${row.total} incidents. An amount is written in ${row.withAmount}. The article does not mention a compensation amount in ${row.none}.`;

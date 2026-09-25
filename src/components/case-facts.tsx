@@ -38,7 +38,7 @@ export function CaseFacts({ row, lang }: { row: CaseRow; lang: Lang }) {
       {note ? <p className="lead">{note}</p> : null}
       {row.othersDied ? (
         <p className="lead">
-          {bn ? "একই ঘটনায় আরও মানুষ মারা গেছেন।" : "The article says other people died in the same incident."}
+          {bn ? "খবরে আছে, একই ঘটনায় আরও মানুষ মারা গেছেন।" : "The article says other people died in the same incident."}
         </p>
       ) : null}
       <Portrait row={row} portrait={portrait} lang={lang} />

@@ -53,12 +53,12 @@ export function ShareActions({ row, lang }: { row: CaseRow; lang: Lang }) {
         <a className="icon-btn" href={whatsapp} target="_blank" rel="noreferrer" aria-label="WhatsApp" onClick={() => track("share", { channel: "whatsapp" })}>
           <WhatsAppIcon />
         </a>
-        <button type="button" className="icon-btn" onClick={onCopy} aria-label={bn ? "লিংক কপি" : "Copy link"}>
+        <button type="button" className="icon-btn" onClick={onCopy} aria-label={bn ? "লিংক কপি করুন" : "Copy link"}>
           <CopyIcon />
         </button>
       </div>
-      {hint === "ig" ? <p className="share-note">{bn ? "ইনস্টাগ্রামে পেস্ট করুন।" : "Paste it in Instagram."}</p> : null}
-      {hint === "copied" ? <p className="share-note">{bn ? "কপি হয়েছে।" : "Copied."}</p> : null}
+      {hint === "ig" ? <p className="share-note">{bn ? "ইনস্টাগ্রামে পেস্ট করে দিন।" : "Paste it in Instagram."}</p> : null}
+      {hint === "copied" ? <p className="share-note">{bn ? "লিংক কপি হয়ে গেছে।" : "Copied."}</p> : null}
       {copyByHand ? (
         <input className="copy-fallback" readOnly value={url} onFocus={(event) => event.currentTarget.select()} />
       ) : null}
