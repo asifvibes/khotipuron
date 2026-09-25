@@ -2,8 +2,19 @@
 
 import { TopBar, usePrefs } from "@/components/prefs";
 import { cases } from "@/data/cases";
-import { paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
-import type { Lang } from "@/data/types";
+import { kindLabel, paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
+import type { AmountKind, Lang } from "@/data/types";
+
+const KIND_ORDER: AmountKind[] = [
+  "demanded",
+  "promised",
+  "said_handed",
+  "court",
+  "government",
+  "insurance",
+  "employer",
+  "none",
+];
 
 const FACEBOOK = "https://www.facebook.com/khotipuronUpdate/";
 
@@ -12,23 +23,11 @@ const BN = {
     "এই ক্ষতিপূরণের টাকার এমাউন্টের তথ্য বিভিন্ন নিউজ পোর্টাল থেকে নেয়া হয়েছে। নিউজের লিংক ঘটনার বিস্তারিত ইনফোর সাথেই দেয়া আছে।",
   advice: "এটি উকিলের পরামর্শ নয়।",
   receive: "কত টাকা পাবেন, তা এখানে বলা হয়নি।",
-  proof: "টাকা হাতে পেয়েছেন কি না, তার প্রমাণ এটা নয়।",
-  case: "এই টাকা মামলা শেষ করে না।",
+  proof: "টাকা হাতে পেয়েছেন কি না, তার প্রমাণও এটা নয়।",
+  case: "এই টাকা ব্যাপারটা মামলাও শেষ করে না।",
   summary: "সামারিঃ",
-  sections:
-    "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল এবং অবহেলা এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।",
-  settlement: "পেইডের খবরঃ",
+  settlement: "ক্ষতিপূরণ দেয়ার খবরঃ",
   kindsLabel: "টাকার ধরনঃ",
-  kinds: [
-    "দাবি",
-    "দেবে বলেছে",
-    "দিয়েছে বলে খবর পাওয়া গেছে",
-    "আদালত",
-    "সরকার",
-    "বিমা",
-    "মালিক পক্ষ",
-    "ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি",
-  ],
   feedback: "এই ওয়েবসাইট নিয়ে কোনো সাজেশন বা ফিডব্যাক থাকলে আমাদের ফেসবুক পেইজে জানানঃ",
 };
 
@@ -84,11 +83,6 @@ function PaymentChart({ lang }: { lang: Lang }) {
           </div>
         </div>
       ))}
-      <figcaption className="chart-note">
-        {lang === "bn"
-          ? "বার যত লম্বা, তত বেশি খবরে টাকা পেইড। শেষ বার থেকে ম্যাগফেরাতের আটটা পেমেন্ট বাদ।"
-          : "Length is how many stories say the money was handed over. The last bar leaves out Magferat’s eight payments."}
-      </figcaption>
     </figure>
   );
 }
@@ -96,13 +90,23 @@ function PaymentChart({ lang }: { lang: Lang }) {
 function totalLine(lang: Lang): string {
   const total = cases.length;
   if (lang === "bn") {
-    return `এই ওয়েবসাইটে এখন ${toBnDigits(String(total))}টি আলাদা মৃত্যুর ঘটনার কথা বলা আছে। সামনে আরও যোগ করা হবে।`;
+    return `এই ওয়েবসাইটে এই মুহূর্তে ${toBnDigits(String(total))}টি আলাদা মৃত্যুর ঘটনার কথা বলা হয়েছে। সামনে আরও যোগ করা হবে।`;
   }
   return `This website now describes ${total} separate deaths. More will be added.`;
 }
 
+function sectionsLine(): string {
+  const labels = sceneCounts(cases)
+    .filter((row) => row.total > 0)
+    .map((row) => sceneLabel[row.scene].bn);
+  const list = labels.length <= 1 ? labels.join("") : `${labels.slice(0, -1).join(", ")} এবং ${labels[labels.length - 1]}`;
+  return `${list} এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।`;
+}
+
 function sceneLines(lang: Lang): string[] {
-  return sceneCounts(cases).map((row) => {
+  return sceneCounts(cases)
+    .filter((row) => row.total > 0)
+    .map((row) => {
     if (lang === "bn") {
       const total = toBnDigits(String(row.total));
       const amount = toBnDigits(String(row.withAmount));
@@ -152,10 +156,10 @@ export function MethodScreen() {
           {line}
         </p>
       ))}
-      <p className="lead">{copy.sections}</p>
+      <p className="lead">{lang === "bn" ? sectionsLine() : EN.sections}</p>
       <h2 className="section">{copy.kindsLabel}</h2>
       <ul className="counts">
-        {copy.kinds.map((kind) => (
+        {(lang === "bn" ? KIND_ORDER.map((key) => kindLabel[key].bn) : EN.kinds).map((kind) => (
           <li key={kind}>{kind}</li>
         ))}
       </ul>

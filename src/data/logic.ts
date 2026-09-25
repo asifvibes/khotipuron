@@ -19,11 +19,11 @@ export const sceneLabel: Record<SceneType, { bn: string; en: string }> = {
 export const kindLabel: Record<AmountKind, { bn: string; en: string }> = {
   demanded: { bn: "দাবি", en: "demanded" },
   promised: { bn: "দেবে বলেছে", en: "promised" },
-  said_handed: { bn: "দিয়েছে বলে খবর", en: "said handed over" },
+  said_handed: { bn: "দিয়েছে বলে খবর পাওয়া গেছে", en: "said handed over" },
   court: { bn: "আদালত", en: "court" },
   government: { bn: "সরকার", en: "government" },
   insurance: { bn: "বিমা", en: "insurance" },
-  employer: { bn: "মালিক", en: "employer" },
+  employer: { bn: "মালিক পক্ষ", en: "employer" },
   none: { bn: "ক্ষতিপূরণের টাকার এমাউন্ট উল্লেখ করা হয় নি", en: "no compensation amount mentioned" },
 };
 
@@ -333,6 +333,7 @@ export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
   const road = rows.filter((row) => row.scene === "road");
   const roadPaid = road.filter((row) => row.paid === true).length;
   const riverPaid = rows.filter((row) => row.scene === "river" && row.paid === true).length;
+  const menBoat = boat.filter((row) => row.sex === "male").length;
   const quietScenes = (["open_drain", "fire", "rail"] as SceneType[]).filter(
     (scene) => !rows.some((row) => row.scene === scene && row.paid === true),
   );
@@ -340,17 +341,18 @@ export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
   const bn = (value: number) => toBnDigits(String(value));
   if (lang === "bn") {
     const lines = [
-      `মোট ${bn(rows.length)}টা খবর। ${bn(paid.length)}টাতে টাকা পেইড হয়েছে বলে খবর। ${bn(mentioned.length)}টাতে এমাউন্ট আছে, পেইড কি না বলা নেই। বাকি ${bn(none)}টাতে কোনো এমাউন্টই নেই।`,
+      `মোট ${bn(rows.length)}টা খবর। ${bn(paid.length)}টাতে ক্ষতিপূরণের টাকা দেয়া হয়েছে বলে নিউজ আর্টিকেলগুলোয়। ${bn(mentioned.length)}টাতে স্পেসিফিক এমাউন্ট আছে, তবে সেটা পেইড কি না তা বলা নেই। বাকি ${bn(none)}টাতে কোনো এমাউন্টই নেই।`,
       `ঢাকায় ${bn(dhaka.length)}টা কেস, পেইড ${bn(dhakaPaid)}টা। ঢাকার বাইরে ${bn(outside.length)}টা কেস, পেইড ${bn(outsidePaid)}টা।`,
-      `বাইরের পেইডের ${bn(boat.length)}টা একই বোট। কর্ণফুলীতে এফভি ম্যাগফেরাত ডুবেছিল, একদিনে ক্রুদের ফ্যামিলিকে টাকা দেয়। ওই কেস বাদ দিলে বাইরে ${bn(outsideWithoutBoat.length)}টার মধ্যে পেইড ${bn(outsidePaidWithoutBoat)}টা।`,
-      `মহিলা ${bn(women.length)} জনের মধ্যে পেইড ${bn(womenPaid)} জন। পুরুষ ${bn(men.length)} জনের মধ্যে পেইড ${bn(menPaid)} জন, তার ${bn(boat.filter((row) => row.sex === "male").length)} জন ওই বোটের। ক্রুদের বেশির ভাগের বয়স খবরে নেই, তাই বয়স দিয়ে রেট বলা যাচ্ছে না।`,
-      `রোডে ${bn(road.length)}টার মধ্যে পেইড ${bn(roadPaid)}টা। রিভারে যত পেইড, সব ওই এক বোট।`,
+      `বাইরের ক্ষতিপূরণের ${bn(boat.length)}টা নিউজ একই বোট এক্সিডেন্টের। কর্ণফুলীতে এফভি ম্যাগফেরাত ডুবেছিল, একদিনে ক্রুদের ফ্যামিলিকে টাকা দেয়। ওই কেস বাদ দিলে বাইরে ${bn(outsideWithoutBoat.length)}টার মধ্যে পেইড মাত্র ${bn(outsidePaidWithoutBoat)}টা।`,
+      `মহিলা ${bn(women.length)} জনের মধ্যে পেইড ${bn(womenPaid)} জন। পুরুষ ${bn(men.length)} জনের মধ্যে পেইড ${bn(menPaid)} জন, তার ${bn(menBoat)} জন ওই বোটের। ক্রুদের বেশির ভাগের বয়স খবরে নেই, তাই বয়স দিয়ে রেট বলা যাচ্ছে না।`,
+      `রোডে ${bn(road.length)}টার মধ্যে পেইড ${bn(roadPaid)}টা। নদীতে ডুবে মারা যাওয়ার ঘটনায় যত পেইড, সব ওই এক বোট এক্সিডেন্টের।`,
     ];
     if (quietScenes.length) {
       const names = quietScenes.map((scene) => sceneLabel[scene].bn).join(", ");
-      lines.push(`ড্রেন, ফায়ার আর রেলের খবরে এই ফাইলে পেইড নেই। সেকশন: ${names}।`);
+      lines.push("ড্রেন, ফায়ার আর রেলের খবরে আপাতত কোনো ক্ষতিপূরণের নিউজ আমাদের জানা নেই।");
+      lines.push(`সেকশন: ${names}।`);
     }
-    lines.push("ঢাকা মানে খবরে ঘটনাস্থল ঢাকা শহর। ঢাকা-সিলেট হাইওয়ে যদি সিলেটে হয়, সেটা ঢাকার বাইরে। এটা দেশের সব ডেথ না, শুধু এখানে যত খবর আছে।");
+    lines.push("ঢাকা মানে খবরে ঘটনাস্থল ঢাকা শহর। ঢাকা-সিলেট হাইওয়ে যদি সিলেটে হয়, সেটা ঢাকার বাইরে। এটা দেশের সব ডেথ না, শুধু এখানে আমাদের ওয়েবসাইটে যত খবর আছে।");
     return lines;
   }
 
@@ -358,7 +360,7 @@ export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
     `Of these ${rows.length} stories, ${paid.length} say the money was handed over. ${mentioned.length} name an amount but do not say it was paid. The other ${none} name no amount.`,
     `Inside Dhaka city: ${dhaka.length} deaths, ${dhakaPaid} with money handed over. Outside Dhaka: ${outside.length} deaths, ${outsidePaid} with money handed over.`,
     `${boat.length} of those ${outsidePaid} outside payments are one boat. FV Magferat sank on the Karnaphuli, and the crew's families were paid on one day. Without that story, ${outsidePaidWithoutBoat} of ${outsideWithoutBoat.length} deaths outside Dhaka say money was handed over.`,
-    `${womenPaid} of ${women.length} women, and ${menPaid} of ${men.length} men, are reported as paid. ${boat.filter((row) => row.sex === "male").length} of the men were on that boat. Most of the crew's ages are not in the articles, so a rate by age cannot be stated.`,
+    `${womenPaid} of ${women.length} women, and ${menPaid} of ${men.length} men, are reported as paid. ${menBoat} of the men were on that boat. Most of the crew's ages are not in the articles, so a rate by age cannot be stated.`,
     `${roadPaid} of ${road.length} road deaths say money was handed over. All ${riverPaid} paid river stories are that one boat.`,
   ];
   if (quietScenes.length) {
