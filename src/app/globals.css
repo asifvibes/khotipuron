@@ -264,6 +264,36 @@ html[data-theme="light"] {
   color: var(--gold);
 }
 
+.range-chart .chart-row {
+  grid-template-columns: minmax(0, 7.2rem) minmax(1.4rem, 1fr) minmax(0, 8.6rem);
+}
+
+.range-chart .chart-name,
+.range-chart .chart-value {
+  overflow-wrap: anywhere;
+}
+
+.range-chart .chart-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.range-taka {
+  display: block;
+}
+
+.range-chart .chart-track span {
+  min-width: 0;
+}
+
+.range-note {
+  margin: -0.15rem 0 0.35rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
 .nudge a {
   color: var(--gold);
   font-weight: 700;

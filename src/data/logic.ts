@@ -72,6 +72,63 @@ export function collectedLine(total: number, read: number, lang: Lang): string {
   return `Of the ${total} stories we have collected, you have read ${read}, and who knows how many unknown stories may still be hidden around us.`;
 }
 
+const LAKH = 100_000;
+
+export type AmountBucket = {
+  id: string;
+  labelBn: string;
+  labelEn: string;
+  count: number;
+  totalBdt: number;
+  /** More than half the people in this bucket are the one Magferat boat. */
+  mostlyMagferat: boolean;
+};
+
+/**
+ * Four bands on the amounts actually in the file.
+ * 1 lakh starts the second bar. 5 lakh starts the third. 10 lakh stays in the third.
+ * Above 10 lakh is strictly more than 10 lakh.
+ */
+const AMOUNT_BANDS: { id: string; labelBn: string; labelEn: string; test: (amount: number) => boolean }[] = [
+  { id: "under-1", labelBn: "১ লাখের কম", labelEn: "Under 1 lakh", test: (amount) => amount < LAKH },
+  {
+    id: "1-to-5",
+    labelBn: "১ থেকে ৫ লাখ",
+    labelEn: "1 to 5 lakh",
+    test: (amount) => amount >= LAKH && amount < 5 * LAKH,
+  },
+  {
+    id: "5-to-10",
+    labelBn: "৫ থেকে ১০ লাখ",
+    labelEn: "5 to 10 lakh",
+    test: (amount) => amount >= 5 * LAKH && amount <= 10 * LAKH,
+  },
+  { id: "above-10", labelBn: "১০ লাখের বেশি", labelEn: "Above 10 lakh", test: (amount) => amount > 10 * LAKH },
+];
+
+export function amountRanges(rows: CaseRow[]): { buckets: AmountBucket[]; people: number; totalBdt: number } {
+  const withAmount = rows.filter(
+    (row): row is CaseRow & { amountBdt: number } => typeof row.amountBdt === "number" && Number.isFinite(row.amountBdt),
+  );
+  const buckets = AMOUNT_BANDS.map((band) => {
+    const group = withAmount.filter((row) => band.test(row.amountBdt));
+    const magferat = group.filter((row) => row.id.includes("magferat")).length;
+    return {
+      id: band.id,
+      labelBn: band.labelBn,
+      labelEn: band.labelEn,
+      count: group.length,
+      totalBdt: group.reduce((sum, row) => sum + row.amountBdt, 0),
+      mostlyMagferat: group.length > 0 && magferat * 2 > group.length,
+    };
+  });
+  return {
+    buckets,
+    people: withAmount.length,
+    totalBdt: withAmount.reduce((sum, row) => sum + row.amountBdt, 0),
+  };
+}
+
 export function formatTaka(amount: number, lang: Lang): string {
   const grouped = amount.toLocaleString("en-IN");
   if (lang === "en") return `Tk ${grouped}`;

@@ -2,7 +2,17 @@
 
 import { TopBar, usePrefs } from "@/components/prefs";
 import { cases } from "@/data/cases";
-import { collectedYearSpan, kindLabel, paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
+import {
+  amountRanges,
+  collectedYearSpan,
+  formatTaka,
+  kindLabel,
+  paymentBars,
+  sceneCounts,
+  sceneLabel,
+  settlementLines,
+  toBnDigits,
+} from "@/data/logic";
 import type { AmountKind, Lang } from "@/data/types";
 
 const KIND_ORDER: AmountKind[] = [
@@ -106,6 +116,41 @@ function PaymentChart({ lang }: { lang: Lang }) {
   );
 }
 
+function AmountRangeChart({ lang }: { lang: Lang }) {
+  const { buckets, people, totalBdt } = amountRanges(cases);
+  const widest = Math.max(...buckets.map((row) => row.count), 1);
+  const bn = lang === "bn";
+  const totalLine = bn
+    ? `এমাউন্ট আছে ${toBnDigits(String(people))} জনের। সব মিলিয়ে ${formatTaka(totalBdt, "bn")}।`
+    : `${people} people have an amount. Together, ${formatTaka(totalBdt, "en")}.`;
+  const caption = bn
+    ? "পেইড আর প্রস্তাব, দুটোই ধরা হয়েছে। প্রস্তাব মানে হাতে টাকা পেয়েছে, এমন না।"
+    : "Paid and proposed are both included. Proposed does not mean the money was received.";
+  return (
+    <figure className="chart range-chart">
+      {buckets.map((row) => (
+        <div key={row.id}>
+          <div className="chart-row">
+            <div className="chart-name">{bn ? row.labelBn : row.labelEn}</div>
+            <div className="chart-track" aria-hidden="true">
+              <span style={{ width: row.count === 0 ? "0%" : `${(row.count / widest) * 100}%` }} />
+            </div>
+            <div className="chart-value">
+              {bn ? toBnDigits(String(row.count)) : row.count}
+              <span className="range-taka">{formatTaka(row.totalBdt, lang)}</span>
+            </div>
+          </div>
+          {row.mostlyMagferat ? (
+            <p className="range-note">{bn ? "এর বেশিরভাগ ওই এক বোটের।" : "Most of this bar is that one boat."}</p>
+          ) : null}
+        </div>
+      ))}
+      <p className="lead">{totalLine}</p>
+      <p className="lead">{caption}</p>
+    </figure>
+  );
+}
+
 function AlertMark() {
   return (
     <svg className="chart-mark" viewBox="0 0 24 22" aria-hidden="true">
@@ -165,6 +210,8 @@ export function MethodScreen() {
         {copy.settlement}
       </h2>
       <PaymentChart lang={lang} />
+      <h2 className="section">{lang === "bn" ? "এমাউন্টের রেঞ্জঃ" : "Amount range:"}</h2>
+      <AmountRangeChart lang={lang} />
       {settlementLines(cases, lang).map((line) => (
         <p className="lead" key={line}>
           {line}
