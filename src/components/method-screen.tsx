@@ -115,39 +115,56 @@ function PaymentChart({ lang }: { lang: Lang }) {
   );
 }
 
+function labelLines(label: string): string[] {
+  const words = label.split(" ");
+  if (words.length < 3) return [label];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
 function AmountRangeChart({ lang }: { lang: Lang }) {
   const buckets = amountRanges(cases).buckets.filter((row) => row.count > 0);
   const widest = Math.max(...buckets.map((row) => row.count), 1);
   const bn = lang === "bn";
+  const boat = buckets.findIndex((row) => row.mostlyMagferat);
   const caption = bn
     ? "পেইড আর প্রস্তাব, দুটোই ধরা হয়েছে। প্রস্তাব মানে হাতে টাকা পেয়েছে, এমন না।"
     : "Paid and proposed are both included. Proposed does not mean the money was received.";
   return (
-    <figure className="chart range-chart">
-      {buckets.map((row, index) => {
-        const count = bn ? toBnDigits(String(row.count)) : String(row.count);
-        return (
-          <div className="range-row" key={row.id} style={{ ["--i" as string]: index }}>
-            <p className="range-line">
-              {bn ? (
-                <>
-                  {row.labelBn}ঃ <span className="range-count">{count} টি</span>
-                </>
-              ) : (
-                <>
-                  {row.labelEn}: <span className="range-count">{count}</span>
-                </>
-              )}
-            </p>
-            <div className="chart-track" aria-hidden="true">
-              <span style={{ width: `${(row.count / widest) * 100}%` }} />
-            </div>
-            {row.mostlyMagferat ? (
-              <p className="range-note">{bn ? "এর বেশিরভাগ ওই এক বোটের।" : "Most of this bar is that one boat."}</p>
-            ) : null}
-          </div>
-        );
-      })}
+    <figure className="chart lollipop">
+      <div className="lollipop-scroll">
+        <div className="lollipop-row">
+          {buckets.map((row, index) => {
+            const count = bn ? toBnDigits(String(row.count)) : String(row.count);
+            const label = bn ? row.labelBn : row.labelEn;
+            const lines = labelLines(label);
+            return (
+              <div
+                className="lollipop-col"
+                key={row.id}
+                tabIndex={0}
+                style={{ ["--i" as string]: index, ["--pct" as string]: (row.count / widest) * 100 }}
+              >
+                <div className="lollipop-plot">
+                  <span className="lollipop-count">{bn ? `${count} টি` : count}</span>
+                  <span className="lollipop-dot" />
+                  <span className="lollipop-stem" aria-hidden="true" />
+                </div>
+                <p className="lollipop-label">
+                  {lines.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        {boat >= 0 ? (
+          <p className={`lollipop-note${boat === buckets.length - 1 ? " is-end" : ""}`}>
+            {bn ? "এর বেশিরভাগ ওই এক বোটের।" : "Most of this one is that one boat."}
+          </p>
+        ) : null}
+      </div>
       <p className="lead">{caption}</p>
     </figure>
   );

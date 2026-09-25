@@ -264,115 +264,168 @@ html[data-theme="light"] {
   color: var(--gold);
 }
 
-.range-row {
+.lollipop-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.15rem;
+}
+
+.lollipop-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  align-items: end;
+  min-width: 100%;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+}
+
+.lollipop-col {
   --i: 0;
-  margin: 0 -0.35rem;
-  padding: 0.42rem 0.35rem 0.5rem;
-  transition:
-    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 200ms ease;
+  --pct: 0;
+  min-width: 0;
+  outline: none;
 }
 
-.range-row:hover,
-.range-row:active {
-  transform: translateX(0.2rem);
-  background: color-mix(in srgb, currentColor 7%, transparent);
+.lollipop-col:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 4px;
 }
 
-.range-line {
-  margin: 0;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
+.lollipop-plot {
+  position: relative;
+  height: 9rem;
 }
 
-.range-count {
-  display: inline-block;
+.lollipop-stem {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 2px;
+  height: calc(var(--pct) * 0.72%);
+  background: currentColor;
+  transform: translateX(-50%) scaleY(1);
+  transform-origin: bottom center;
+}
+
+.lollipop-dot {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: calc(var(--pct) * 0.72%);
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: var(--gold);
+  translate: -50% 50%;
+  transition: translate 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lollipop-count {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--pct) * 0.72% + 0.95rem);
   font-weight: 700;
-  transition: color 180ms ease;
+  line-height: 1;
+  white-space: nowrap;
+  translate: -50% 0;
+  transition:
+    translate 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 180ms ease;
 }
 
-.range-row:hover .range-count,
-.range-row:active .range-count {
+.lollipop-col:hover .lollipop-dot,
+.lollipop-col:focus-visible .lollipop-dot,
+.lollipop-col:active .lollipop-dot {
+  translate: -50% 12%;
+}
+
+.lollipop-col:hover .lollipop-count,
+.lollipop-col:focus-visible .lollipop-count,
+.lollipop-col:active .lollipop-count {
+  translate: -50% -0.2rem;
   color: var(--gold);
 }
 
-.range-chart .chart-track {
-  height: 0.5rem;
-  margin-top: 0.32rem;
-  overflow: visible;
+.lollipop-label {
+  margin: 0.45rem 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.3;
 }
 
-.range-chart .chart-track span {
-  min-width: 0;
-  transform-origin: left center;
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+.lollipop-label span {
+  display: block;
+  white-space: nowrap;
 }
 
-.range-row:hover .chart-track span,
-.range-row:active .chart-track span {
-  transform: scaleX(1.02) scaleY(1.65);
-}
-
-.range-note {
-  margin: 0.28rem 0 0;
+.lollipop-note {
+  margin: 0.4rem 0 0;
   font-size: 0.95rem;
   line-height: 1.35;
 }
 
+.lollipop-note.is-end {
+  text-align: right;
+}
+
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .range-chart .chart-track span {
-      animation: range-fill 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    .lollipop-stem {
+      animation: lollipop-stem 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-timeline: view();
-      animation-range: entry 8% entry 42%;
-      animation-delay: calc(var(--i) * 70ms);
+      animation-range: entry 10% entry 46%;
+      animation-delay: calc(var(--i) * 60ms);
     }
 
-    .range-count {
-      animation: range-settle 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    .lollipop-dot {
+      animation: lollipop-dot 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
       animation-timeline: view();
-      animation-range: entry 16% entry 48%;
-      animation-delay: calc(var(--i) * 70ms);
+      animation-range: entry 28% entry 58%;
+      animation-delay: calc(var(--i) * 60ms);
     }
   }
 }
 
-@keyframes range-fill {
+@keyframes lollipop-stem {
   from {
-    clip-path: inset(0 100% 0 0);
+    transform: translateX(-50%) scaleY(0);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    transform: translateX(-50%) scaleY(1);
   }
 }
 
-@keyframes range-settle {
+@keyframes lollipop-dot {
   from {
-    opacity: 0.35;
-    transform: translateY(0.28rem);
+    translate: -50% 140%;
+    opacity: 0.2;
   }
   to {
+    translate: -50% 50%;
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .range-row,
-  .range-chart .chart-track span,
-  .range-count {
+  .lollipop-stem,
+  .lollipop-dot,
+  .lollipop-count {
     animation: none;
-    transform: none;
   }
 
-  .range-row:hover,
-  .range-row:active {
-    transform: none;
+  .lollipop-col:hover .lollipop-dot,
+  .lollipop-col:focus-visible .lollipop-dot,
+  .lollipop-col:active .lollipop-dot,
+  .lollipop-col:hover .lollipop-count,
+  .lollipop-col:focus-visible .lollipop-count,
+  .lollipop-col:active .lollipop-count {
+    translate: -50% 50%;
   }
 
-  .range-row:hover .chart-track span,
-  .range-row:active .chart-track span {
-    transform: none;
+  .lollipop-col:hover .lollipop-count,
+  .lollipop-col:focus-visible .lollipop-count,
+  .lollipop-col:active .lollipop-count {
+    translate: -50% 0;
   }
 }
 
