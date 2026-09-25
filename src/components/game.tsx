@@ -6,6 +6,7 @@ import { CaseFacts } from "@/components/case-facts";
 import { TopBar, usePrefs } from "@/components/prefs";
 import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
+import { ChartNudge } from "@/components/chart-nudge";
 import { Button } from "@/components/ui/button";
 import { cases } from "@/data/cases";
 import { momentLine } from "@/data/moment";
@@ -158,6 +159,7 @@ function CaseCard({
   return (
     <section>
       <CaseFacts row={row} lang={lang} />
+      <ChartNudge lang={lang} />
       <ShareActions row={row} lang={lang} />
       <Button type="button" className="retro-btn pair-btn" onClick={onReplay}>
         {lang === "bn" ? "আরেকটি দেখুন" : "See another"}

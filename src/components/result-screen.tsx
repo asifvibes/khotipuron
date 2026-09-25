@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { track } from "@/components/analytics";
 import { CaseFacts } from "@/components/case-facts";
+import { ChartNudge } from "@/components/chart-nudge";
 import { TopBar, usePrefs } from "@/components/prefs";
 import { Scene } from "@/components/scene";
 import { ShareActions } from "@/components/share-actions";
@@ -45,6 +46,7 @@ export function ResultScreen({ row }: { row: CaseRow }) {
       />
       <Scene idle="walk" phase="death" scene={row.scene} />
       <CaseFacts row={row} lang={lang} />
+      <ChartNudge lang={lang} />
       <ShareActions row={row} lang={lang} />
       <Link
         className="retro-btn pair-btn play-link"

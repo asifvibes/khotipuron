@@ -302,6 +302,19 @@ export function inDhakaCity(row: CaseRow): boolean {
   return /\bDhaka\b/.test(cleaned);
 }
 
+export function paymentBars(rows: CaseRow[]) {
+  const rate = (group: CaseRow[]) => {
+    const paid = group.filter((row) => row.paid === true).length;
+    return { paid, total: group.length, pct: group.length ? Math.round((paid / group.length) * 100) : 0 };
+  };
+  const outside = rows.filter((row) => !inDhakaCity(row));
+  return {
+    dhaka: rate(rows.filter(inDhakaCity)),
+    outside: rate(outside),
+    outsideNoBoat: rate(outside.filter((row) => !row.id.includes("magferat"))),
+  };
+}
+
 export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
   const paid = rows.filter((row) => row.paid === true);
   const mentioned = rows.filter((row) => row.amountBdt != null && row.paid !== true);

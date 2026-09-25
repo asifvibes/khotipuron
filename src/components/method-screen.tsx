@@ -2,7 +2,7 @@
 
 import { TopBar, usePrefs } from "@/components/prefs";
 import { cases } from "@/data/cases";
-import { sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
+import { paymentBars, sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
 import type { Lang } from "@/data/types";
 
 const FACEBOOK = "https://www.facebook.com/khotipuronUpdate/";
@@ -57,6 +57,42 @@ const EN = {
   feedback: "If you have a suggestion or feedback about this website, tell us on our Facebook page:",
 };
 
+function PaymentChart({ lang }: { lang: Lang }) {
+  const bars = paymentBars(cases);
+  const rows = [
+    { key: "dhaka", label: lang === "bn" ? "ঢাকা শহর" : "Dhaka city", ...bars.dhaka },
+    { key: "outside", label: lang === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka", ...bars.outside },
+    {
+      key: "boat",
+      label: lang === "bn" ? "বাইরে, নৌকা বাদ" : "Outside, without the boat",
+      ...bars.outsideNoBoat,
+    },
+  ];
+  const widest = Math.max(...rows.map((row) => row.pct), 1);
+  return (
+    <figure className="chart">
+      {rows.map((row) => (
+        <div className="chart-row" key={row.key}>
+          <div className="chart-name">{row.label}</div>
+          <div className="chart-track" aria-hidden="true">
+            <span style={{ width: `${(row.pct / widest) * 100}%` }} />
+          </div>
+          <div className="chart-value">
+            {lang === "bn"
+              ? `${toBnDigits(String(row.paid))} / ${toBnDigits(String(row.total))}`
+              : `${row.paid} / ${row.total}`}
+          </div>
+        </div>
+      ))}
+      <figcaption className="chart-note">
+        {lang === "bn"
+          ? "দৈর্ঘ্য হলো কতটিতে টাকা দেওয়া হয়েছে বলে খবর। শেষ দাগ থেকে ম্যাগফেরাতের আটটি টাকা বাদ।"
+          : "Length is how many stories say the money was handed over. The last bar leaves out Magferat’s eight payments."}
+      </figcaption>
+    </figure>
+  );
+}
+
 function totalLine(lang: Lang): string {
   const total = cases.length;
   if (lang === "bn") {
@@ -94,7 +130,10 @@ export function MethodScreen() {
       <p className="lead">{copy.proof}</p>
       <p className="lead">{copy.case}</p>
       <p className="lead">{totalLine(lang)}</p>
-      <h2 className="section">{copy.settlement}</h2>
+      <h2 className="section" id="settlement">
+        {copy.settlement}
+      </h2>
+      <PaymentChart lang={lang} />
       {settlementLines(cases, lang).map((line) => (
         <p className="lead" key={line}>
           {line}

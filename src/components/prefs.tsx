@@ -85,12 +85,12 @@ export function TopBar({
         </button>
         <Link
           href="/method"
-          className="icon-btn"
-          aria-label={lang === "bn" ? "বিস্তারিত" : "Details"}
+          className={nav === "method" ? "nav-link is-current" : "nav-link"}
           aria-current={nav === "method" ? "page" : undefined}
           onClick={() => track("info_open")}
         >
           <InfoIcon />
+          <span>{lang === "bn" ? "তথ্য" : "Info"}</span>
         </Link>
       </div>
     </header>
