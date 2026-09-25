@@ -249,8 +249,19 @@ html[data-theme="light"] {
 }
 
 .chart > .chart-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
   margin-top: 0;
   overflow-wrap: break-word;
+}
+
+.chart-mark {
+  flex: none;
+  width: 1.35rem;
+  height: 1.24rem;
+  margin-top: 0.12rem;
+  color: var(--gold);
 }
 
 .nudge a {

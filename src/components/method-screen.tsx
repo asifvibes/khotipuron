@@ -85,7 +85,10 @@ function PaymentChart({ lang }: { lang: Lang }) {
   const widest = Math.max(...rows.map((row) => row.pct), 1);
   return (
     <figure className="chart">
-      <p className="chart-note">{chartNote(lang)}</p>
+      <p className="chart-note">
+        <AlertMark />
+        <span>{chartNote(lang)}</span>
+      </p>
       {rows.map((row) => (
         <div className="chart-row" key={row.key}>
           <div className="chart-name">{row.label}</div>
@@ -103,12 +106,14 @@ function PaymentChart({ lang }: { lang: Lang }) {
   );
 }
 
-function totalLine(lang: Lang): string {
-  const total = cases.length;
-  if (lang === "bn") {
-    return `এই ওয়েবসাইটে এই মুহূর্তে ${toBnDigits(String(total))}টি আলাদা মৃত্যুর ঘটনার কথা বলা হয়েছে। সামনে আরও যোগ করা হবে।`;
-  }
-  return `This website now describes ${total} separate deaths. More will be added.`;
+function AlertMark() {
+  return (
+    <svg className="chart-mark" viewBox="0 0 24 22" aria-hidden="true">
+      <path fill="currentColor" d="M12 1.4 23 20.6H1L12 1.4z" />
+      <rect x="11" y="8" width="2" height="6" fill="var(--bg)" />
+      <rect x="11" y="15.4" width="2" height="2" fill="var(--bg)" />
+    </svg>
+  );
 }
 
 function sectionsLine(): string {
@@ -156,7 +161,6 @@ export function MethodScreen() {
       <p className="lead">{copy.receive}</p>
       <p className="lead">{copy.proof}</p>
       <p className="lead">{copy.case}</p>
-      <p className="lead">{totalLine(lang)}</p>
       <h2 className="section" id="settlement">
         {copy.settlement}
       </h2>
