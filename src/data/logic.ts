@@ -85,12 +85,20 @@ export type AmountBucket = {
 };
 
 /**
- * Four bands on the amounts actually in the file.
- * 1 lakh starts the second bar. 5 lakh starts the third. 10 lakh stays in the third.
+ * Bands on the amounts actually in the file. Edges do not overlap.
+ * Under 50 thousand, then under 1 lakh, then 1 to 5, 5 to 10, above 10.
+ * 5 lakh starts the fourth bar. 10 lakh stays in that bar.
  * Above 10 lakh is strictly more than 10 lakh.
+ * The page omits a band whose count is 0.
  */
 const AMOUNT_BANDS: { id: string; labelBn: string; labelEn: string; test: (amount: number) => boolean }[] = [
-  { id: "under-1", labelBn: "১ লাখের কম", labelEn: "Under 1 lakh", test: (amount) => amount < LAKH },
+  { id: "under-50", labelBn: "৫০ হাজারেরও কম", labelEn: "Under 50 thousand", test: (amount) => amount < 50_000 },
+  {
+    id: "under-1",
+    labelBn: "১ লাখের কম",
+    labelEn: "Under 1 lakh",
+    test: (amount) => amount >= 50_000 && amount < LAKH,
+  },
   {
     id: "1-to-5",
     labelBn: "১ থেকে ৫ লাখ",
