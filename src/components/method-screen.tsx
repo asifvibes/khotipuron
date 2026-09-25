@@ -2,7 +2,7 @@
 
 import { TopBar, usePrefs } from "@/components/prefs";
 import { cases } from "@/data/cases";
-import { sceneCounts, sceneLabel, toBnDigits } from "@/data/logic";
+import { sceneCounts, sceneLabel, settlementLines, toBnDigits } from "@/data/logic";
 import type { Lang } from "@/data/types";
 
 const FACEBOOK = "https://www.facebook.com/khotipuronUpdate/";
@@ -17,6 +17,7 @@ const BN = {
   summary: "সামারিঃ",
   sections:
     "সড়ক, খোলা ড্রেন, কর্মস্থল, আগুন, নদী, রেল এবং অবহেলা এই কয়টা সেকশন আপাতত এড করা আছে, ফিউচারে আরও এড করা যেতে পারে।",
+  settlement: "টাকা দেওয়ার খবরঃ",
   kindsLabel: "টাকার ধরনঃ",
   kinds: [
     "দাবি",
@@ -41,6 +42,7 @@ const EN = {
   summary: "Summary:",
   sections:
     "Road, open drain, workplace, fire, river, rail, and negligence are the sections added for now. More may be added later.",
+  settlement: "Stories where money was handed over:",
   kindsLabel: "Kinds of money:",
   kinds: [
     "Demanded",
@@ -92,6 +94,12 @@ export function MethodScreen() {
       <p className="lead">{copy.proof}</p>
       <p className="lead">{copy.case}</p>
       <p className="lead">{totalLine(lang)}</p>
+      <h2 className="section">{copy.settlement}</h2>
+      {settlementLines(cases, lang).map((line) => (
+        <p className="lead" key={line}>
+          {line}
+        </p>
+      ))}
       <h2 className="section">{copy.summary}</h2>
       {scenes.map((line) => (
         <p className="lead" key={line}>

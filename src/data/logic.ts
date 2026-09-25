@@ -297,6 +297,64 @@ export function portraitOf(row: CaseRow): { url: string; creditEn: string; credi
   return image;
 }
 
+export function inDhakaCity(row: CaseRow): boolean {
+  const cleaned = (row.locationEn ?? "").replace(/Dhaka-[A-Za-z]+/g, "");
+  return /\bDhaka\b/.test(cleaned);
+}
+
+export function settlementLines(rows: CaseRow[], lang: Lang): string[] {
+  const paid = rows.filter((row) => row.paid === true);
+  const mentioned = rows.filter((row) => row.amountBdt != null && row.paid !== true);
+  const none = rows.length - paid.length - mentioned.length;
+  const dhaka = rows.filter(inDhakaCity);
+  const outside = rows.filter((row) => !inDhakaCity(row));
+  const dhakaPaid = dhaka.filter((row) => row.paid === true).length;
+  const outsidePaid = outside.filter((row) => row.paid === true).length;
+  const boat = paid.filter((row) => row.id.includes("magferat"));
+  const outsideWithoutBoat = outside.filter((row) => !row.id.includes("magferat"));
+  const outsidePaidWithoutBoat = outsideWithoutBoat.filter((row) => row.paid === true).length;
+  const women = rows.filter((row) => row.sex === "female");
+  const men = rows.filter((row) => row.sex === "male");
+  const womenPaid = women.filter((row) => row.paid === true).length;
+  const menPaid = men.filter((row) => row.paid === true).length;
+  const road = rows.filter((row) => row.scene === "road");
+  const roadPaid = road.filter((row) => row.paid === true).length;
+  const riverPaid = rows.filter((row) => row.scene === "river" && row.paid === true).length;
+  const quietScenes = (["open_drain", "fire", "rail"] as SceneType[]).filter(
+    (scene) => !rows.some((row) => row.scene === scene && row.paid === true),
+  );
+
+  const bn = (value: number) => toBnDigits(String(value));
+  if (lang === "bn") {
+    const lines = [
+      `এই ${bn(rows.length)}টি খবরের মধ্যে ${bn(paid.length)}টিতে টাকা দেওয়া হয়েছে বলে লেখা আছে। ${bn(mentioned.length)}টিতে টাকার কথা আছে, কিন্তু দেওয়া হয়েছে বলা নেই। বাকি ${bn(none)}টিতে কোনো এমাউন্ট নেই।`,
+      `ঢাকা শহরে ${bn(dhaka.length)}টি ঘটনা, তার মধ্যে ${bn(dhakaPaid)}টিতে টাকা দেওয়া হয়েছে। ঢাকার বাইরে ${bn(outside.length)}টি ঘটনা, তার মধ্যে ${bn(outsidePaid)}টিতে টাকা দেওয়া হয়েছে।`,
+      `ঢাকার বাইরের ${bn(outsidePaid)}টির ${bn(boat.length)}টি একই নৌকা। কর্ণফুলীতে এফভি ম্যাগফেরাত ডুবেছিল, একদিনে নাবিকদের পরিবারকে টাকা দেওয়া হয়েছে। ওই খবর বাদ দিলে ঢাকার বাইরে ${bn(outsideWithoutBoat.length)}টির মধ্যে ${bn(outsidePaidWithoutBoat)}টিতে টাকা দেওয়া হয়েছে।`,
+      `নারী ${bn(women.length)} জনের মধ্যে ${bn(womenPaid)} জন টাকা পেয়েছেন বলে খবর। পুরুষ ${bn(men.length)} জনের মধ্যে ${bn(menPaid)} জন, তার ${bn(boat.filter((row) => row.sex === "male").length)} জন ওই নৌকার। বেশির ভাগ নাবিকের বয়স খবরে নেই, তাই বয়স দিয়ে হার বলা যাচ্ছে না।`,
+      `সড়কে ${bn(road.length)}টির মধ্যে ${bn(roadPaid)}টিতে টাকা দেওয়া হয়েছে। নদীতে টাকা পাওয়ার ${bn(riverPaid)}টি খবরের সবই ওই একটি নৌকা।`,
+    ];
+    if (quietScenes.length) {
+      const names = quietScenes.map((scene) => sceneLabel[scene].bn).join(", ");
+      lines.push(`খোলা ড্রেন, আগুন আর রেলের খবরে এই ফাইলে টাকা দেওয়ার কথা নেই। সেগুলো: ${names}।`);
+    }
+    lines.push("ঢাকা বলতে খবরে ঘটনাস্থল ঢাকা শহর। ঢাকার নামে মহাসড়ক অন্য জেলায় হলে সেটা ঢাকার বাইরে। এটা দেশের সব মৃত্যু নয়, শুধু এখানে থাকা খবর।");
+    return lines;
+  }
+
+  const lines = [
+    `Of these ${rows.length} stories, ${paid.length} say the money was handed over. ${mentioned.length} name an amount but do not say it was paid. The other ${none} name no amount.`,
+    `Inside Dhaka city: ${dhaka.length} deaths, ${dhakaPaid} with money handed over. Outside Dhaka: ${outside.length} deaths, ${outsidePaid} with money handed over.`,
+    `${boat.length} of those ${outsidePaid} outside payments are one boat. FV Magferat sank on the Karnaphuli, and the crew's families were paid on one day. Without that story, ${outsidePaidWithoutBoat} of ${outsideWithoutBoat.length} deaths outside Dhaka say money was handed over.`,
+    `${womenPaid} of ${women.length} women, and ${menPaid} of ${men.length} men, are reported as paid. ${boat.filter((row) => row.sex === "male").length} of the men were on that boat. Most of the crew's ages are not in the articles, so a rate by age cannot be stated.`,
+    `${roadPaid} of ${road.length} road deaths say money was handed over. All ${riverPaid} paid river stories are that one boat.`,
+  ];
+  if (quietScenes.length) {
+    lines.push(`In this file, open drain, fire, and rail name no payment. Those sections: ${quietScenes.map((scene) => sceneLabel[scene].en).join(", ")}.`);
+  }
+  lines.push("Dhaka means the article places the death in Dhaka city. A highway named Dhaka in another district counts as outside. This is only the stories collected here, not every death in the country.");
+  return lines;
+}
+
 export function sceneCounts(rows: CaseRow[]) {
   const scenes = Object.keys(sceneLabel) as SceneType[];
   return scenes.map((scene) => {
