@@ -193,7 +193,7 @@ function EmptyPool({ lang }: { lang: Lang }) {
           target="_blank"
           rel="noreferrer"
         >
-          {bn ? "ফেসবুক পেইজ" : "Facebook page"}
+          Khotipuron - ক্ষতিপূরণ
         </a>
       </div>
     </section>

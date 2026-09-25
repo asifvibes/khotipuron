@@ -252,7 +252,7 @@ export function MethodScreen() {
       <p className="lead">
         {copy.feedback}{" "}
         <a className="text-link" href={FACEBOOK} target="_blank" rel="noreferrer">
-          Khotipuron
+          Khotipuron - ক্ষতিপূরণ
         </a>
       </p>
     </main>
